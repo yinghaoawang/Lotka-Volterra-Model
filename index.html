@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>LV</title>
+        <script src='Chart.min.js'></script>
+        <script src='jquery-3.2.1.min.js'></script>
+        <link rel='stylesheet' type='text/css' href='bootstrap-3.3.7-dist/css/bootstrap.min.css'>
+    </head>
+    <body>
+        <div class='container'>
+            <canvas id='myChart'></canvas>
+            <div class='form-horizontal'>
+                <div class='form-group'>
+                    <div class='col-sm-2 pull-right'>
+                        <button id='update' class='btn btn-primary'>Update</button>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-sm-2 control-label' for='dt'>delta t</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' id='dt' value='.005'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='t0'>starting t</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' id='t0' value='0'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='tmax'>ending t</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' id='tmax' value='2.5'></input>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-sm-2 control-label' for='x0'>starting prey</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='20' id='x0'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='y0'>starting predator</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='10' id='y0'></input>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-sm-2 control-label' for='a'>prey growth(a)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='15' id='a'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='b'>prey-predator meet(b)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='1' id='b'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='c'>predator growth (c)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='.5' id='c'></input>
+                    </div>
+                </div>
+                <div class='form-group'>
+                    <label class='col-sm-2 control-label' for='d'>predator decay (d)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='10' id='d'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='e'>prey harvest (e)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='0' id='e'></input>
+                    </div>
+                    <label class='col-sm-2 control-label' for='f'>predator harvest (f)</label>
+                    <div class='col-sm-2'>
+                        <input type='text' class='form-control' value='0' id='f'></input>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src='lv.js'></script>
+    </body>
+</html>
