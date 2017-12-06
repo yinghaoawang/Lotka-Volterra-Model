@@ -2,6 +2,11 @@ $(function() {
     // initial graph
     updateGraph();
     var chart;
+    $('input').keypress(function(e) {
+        if (e.which == 13) {
+            $('#update').click();
+        }
+    });
     $('#update').click(function() {
         chart.destroy();
         updateGraph();
@@ -20,25 +25,34 @@ $(function() {
         var d = parseFloat($('#d').val());
         var e = parseFloat($('#e').val());
         var f = parseFloat($('#f').val());
+        var etime = parseFloat($('#etime').val());
+        var ftime = parseFloat($('#ftime').val());
         var tvals = [t0];
         var xvals = [x0];
         var yvals = [y0];
         var x = x0;
         var y = y0;
         for (var i = t0; i <= tmax; i += dt) {
-            var dx = (a-e)*x - b*x*y;
-            var dy = c*x*y - (d-f)*y;
+            var dx = (a)*x - b*x*y;
+            var dy = c*x*y - (d)*y;
+            if (i >= etime) {
+                dx = (a-e)*x - b*x*y;
+            }
+            if (i >= ftime) {
+                dy = c*x*y - (d-f)*y;
+            }
             /*
             console.log('dt',dt);
             console.log('dxdt',dx * dt);
             console.log('dxdy:',dx,dy);
             */
-            x += dx*dt;
-            y += dy*dt;
-            console.log('xy:',x,y);
+            x = Math.max(0, x+dx*dt);
+            y = Math.max(0, y+dy*dt);
+            //console.log('xy:',x,y);
             xvals.push(x);
             yvals.push(y);
             tvals.push(i);
+            if (x == 0 && y == 0) break;
         }
         chart = new Chart(ctx, {
                 // The type of chart we want to create
