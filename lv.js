@@ -8,6 +8,13 @@ $(function() {
             $('#update').click();
         }
     });
+    /*
+    $('input').is('.sec').keypress(function(e) {
+        if (e.which == 13) {
+            $('#findxy').click();
+        }
+    });
+    */
     $('#update').click(function() {
         chart.destroy();
         updateGraph();
@@ -22,14 +29,14 @@ $(function() {
         var xvals = chart.data.datasets[0].data;
         var yvals = chart.data.datasets[1].data;
         var dt = chart.data.labels[1];
-        var xind = xt/dt;
-        var yind = yt/dt;
+        var xind = Math.round(xt/dt);
+        var yind = Math.round(yt/dt);
         var x = xvals[xind];
         var y = yvals[yind];
         $('#xat').val(x);
         $('#yat').val(y);
         var esugg = a-y*b;
-        var fsugg = d-x*c;
+        var fsugg = x*d-c;
         $('#esug').val(esugg);
         $('#fsug').val(fsugg);
     }
@@ -56,12 +63,12 @@ $(function() {
         var y = y0;
         for (var i = t0; i <= tmax; i += dt) {
             var dx = (a)*x - b*x*y;
-            var dy = c*x*y - (d)*y;
+            var dy = d*x*y - (c)*y;
             if (i >= etime) {
                 dx = (a-e)*x - b*x*y;
             }
             if (i >= ftime) {
-                dy = c*x*y - (d-f)*y;
+                dy = d*x*y - (c+f)*y;
             }
             x = Math.max(0, x+dx*dt);
             y = Math.max(0, y+dy*dt);
@@ -104,7 +111,7 @@ $(function() {
                 // Configuration options go here
                 options: {}
         });
-        var ssx = (d-f)/c;
+        var ssx = (c+f)/d;
         var ssy = (a-e)/b;
         $('#ssx').val(ssx);
         $('#ssy').val(ssy);
