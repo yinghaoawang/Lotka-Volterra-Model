@@ -56,6 +56,10 @@ $(function() {
         var f = parseFloat($('#f').val());
         var etime = parseFloat($('#etime').val());
         var ftime = parseFloat($('#ftime').val());
+        var etime2 = parseFloat($('#etime2').val());
+        var ftime2 = parseFloat($('#ftime2').val());
+        var e2 = parseFloat($('#e2').val());
+        var f2 = parseFloat($('#f2').val());
         var tvals = [];
         var xvals = [x0];
         var yvals = [y0];
@@ -81,10 +85,22 @@ $(function() {
             if (xtv != 0 && i >= xt1) {
                 x += xtv;
                 xtv = 0;
+                e = 0;
+                // if changes x at time, wildlife stops harvest rates on deer
             }
             if (ytv != 0 && i >= yt1) {
                 y += ytv;
                 ytv = 0;
+                f = 0;
+                // if changes y at time, wildlife stops pop. control rates on coyote
+            }
+            if (e2 != 0 && i >= etime2) {
+                e = e2;
+                e2 = 0;
+            }
+            if (f2 != 0 && i >= ftime2) {
+                f = f2;
+                f2 = 0;
             }
             x = Math.max(0, x);
             y = Math.max(0, y);
