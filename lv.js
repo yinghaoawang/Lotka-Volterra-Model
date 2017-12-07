@@ -61,6 +61,12 @@ $(function() {
         var yvals = [y0];
         var x = x0;
         var y = y0;
+        var xt1 = parseFloat($('#xt1').val());
+        var xtv = parseFloat($('#xtv').val());
+        var yt1 = parseFloat($('#yt1').val());
+        var ytv = parseFloat($('#ytv').val());
+        var xt = Math.round(xt1/dt);
+        var yt = Math.round(yt1/dt);
         for (var i = t0; i <= tmax; i += dt) {
             var dx = (a)*x - b*x*y;
             var dy = d*x*y - (c)*y;
@@ -70,8 +76,18 @@ $(function() {
             if (i >= ftime) {
                 dy = d*x*y - (c+f)*y;
             }
-            x = Math.max(0, x+dx*dt);
-            y = Math.max(0, y+dy*dt);
+            x = x+dx*dt;
+            y = y+dy*dt;
+            if (xtv != 0 && i >= xt1) {
+                x += xtv;
+                xtv = 0;
+            }
+            if (ytv != 0 && i >= yt1) {
+                y += ytv;
+                ytv = 0;
+            }
+            x = Math.max(0, x);
+            y = Math.max(0, y);
             xvals.push(x);
             yvals.push(y);
             tvals.push(i);
