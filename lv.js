@@ -2,6 +2,7 @@ $(function() {
     // initial graph
     updateGraph();
     var chart;
+    var a,b,c,d;
     $('input').keypress(function(e) {
         if (e.which == 13) {
             $('#update').click();
@@ -11,6 +12,27 @@ $(function() {
         chart.destroy();
         updateGraph();
     });
+    $('#findxy').click(function() {
+        findXY();
+    });
+
+    function findXY() {
+        var xt = parseFloat($('#xt').val());
+        var yt = parseFloat($('#yt').val());
+        var xvals = chart.data.datasets[0].data;
+        var yvals = chart.data.datasets[1].data;
+        var dt = chart.data.labels[1];
+        var xind = xt/dt;
+        var yind = yt/dt;
+        var x = xvals[xind];
+        var y = yvals[yind];
+        $('#xat').val(x);
+        $('#yat').val(y);
+        var esugg = a-y*b;
+        var fsugg = d-x*c;
+        $('#esug').val(esugg);
+        $('#fsug').val(fsugg);
+    }
 
     function updateGraph() {
         var ctx = $('#myChart');
@@ -19,15 +41,15 @@ $(function() {
         var tmax = parseFloat($('#tmax').val());
         var x0 = parseFloat($('#x0').val());
         var y0 = parseFloat($('#y0').val());
-        var a = parseFloat($('#a').val());
-        var b = parseFloat($('#b').val());
-        var c = parseFloat($('#c').val());
-        var d = parseFloat($('#d').val());
+        a = parseFloat($('#a').val());
+        b = parseFloat($('#b').val());
+        c = parseFloat($('#c').val());
+        d = parseFloat($('#d').val());
         var e = parseFloat($('#e').val());
         var f = parseFloat($('#f').val());
         var etime = parseFloat($('#etime').val());
         var ftime = parseFloat($('#ftime').val());
-        var tvals = [t0];
+        var tvals = [];
         var xvals = [x0];
         var yvals = [y0];
         var x = x0;
@@ -41,14 +63,8 @@ $(function() {
             if (i >= ftime) {
                 dy = c*x*y - (d-f)*y;
             }
-            /*
-            console.log('dt',dt);
-            console.log('dxdt',dx * dt);
-            console.log('dxdy:',dx,dy);
-            */
             x = Math.max(0, x+dx*dt);
             y = Math.max(0, y+dy*dt);
-            //console.log('xy:',x,y);
             xvals.push(x);
             yvals.push(y);
             tvals.push(i);
@@ -88,5 +104,9 @@ $(function() {
                 // Configuration options go here
                 options: {}
         });
+        var ssx = (d-f)/c;
+        var ssy = (a-e)/b;
+        $('#ssx').val(ssx);
+        $('#ssy').val(ssy);
     }
 });
