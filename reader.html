@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Chart Reader</title>
+        <script src='Chart.min.js'></script>
+        <script src='jquery-3.2.1.min.js'></script>
+        <link rel='stylesheet' type='text/css' href='bootstrap-3.3.7-dist/css/bootstrap.min.css'>
+    </head>
+    <body>
+        <div class='container'>
+            <canvas id='myChart'></canvas>
+            <div class='container-fluid'>
+                <div class='form-horizontal'>
+                    <div class='form-group'>
+                        <div class='col-sm-2 pull-right'>
+                            <button id='update' class='btn btn-primary'>Update</button>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='col-sm-2 control-label' for='dt'>delta t</label>
+                        <div class='col-sm-2'>
+                            <input type='text' class='form-control' id='dt' value='1'></input>
+                        </div>
+                        <label class='col-sm-2 control-label' for='xunit'>x unit</label>
+                        <div class='col-sm-2'>
+                            <input type='text' class='form-control' id='xunit' value='deer'></input>
+                        </div>
+                        <label class='col-sm-2 control-label' for='yunit'>y unit</label>
+                        <div class='col-sm-2'>
+                            <input type='text' class='form-control' id='yunit' value='coyote'></input>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label for='data'>x data</label>
+                        <textarea class='form-control' rows='5' id='xdata'></textarea>
+                    </div>
+                    <div class='form-group'>
+                        <label for='data'>y data</label>
+                        <textarea class='form-control' rows='5' id='ydata'></textarea>
+                    </div>
+            </div>
+        </div>
+        <script src='chart-reader.js'></script>
+    </body>
+</html>

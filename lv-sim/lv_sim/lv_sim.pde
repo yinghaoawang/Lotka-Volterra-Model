@@ -2,18 +2,21 @@ ArrayList<Prey> preys = new ArrayList<Prey>();
 ArrayList<Predator> predators = new ArrayList<Predator>();
 ArrayList<Integer> preyData = new ArrayList<Integer>();
 ArrayList<Integer> predatorData = new ArrayList<Integer>();
-int x0 = 30;
-int y0 = 6;
-float a = .3;
-float b = .0005;
-float c = .2;
-float d = .5;
+int x0 = 1800;
+int y0 = 600;
+float a = .25;
+float b = .5;
+float c = .1;
+float d = .1;
 float deltaT = 30; // in frames
-float dirChangeT = 10; //in frames
-float huntRadius = 99990;
+float dirChangeT = 30; //in frames
+float huntRadius = 10;
+float predatorDeath = deltaT * 999999999;
+float preyDeath = deltaT * 30;
+boolean isVisual = false;
 
 void setup() {
-  size(800, 800);
+  size(1600, 1600);
   frameRate(60);
   for (int i = 0; i < x0; ++i) addRandomPrey();
   for (int i = 0; i < y0; ++i) addRandomPredator();
@@ -22,7 +25,7 @@ void setup() {
 boolean checkCollision(float x1, float y1, float x2, float y2, float radius) {
   float dx = x2 - x1;
   float dy = y2 - y1;
-  float distance = dx * dx + dy * dy;
+  float distance = sqrt(dx * dx + dy * dy);
   if (distance < radius) return true;
   return false;
 }
@@ -33,33 +36,50 @@ boolean checkCollision(Predator predator, Prey prey) {
 
 void draw() {
   background(255);
-  if (frameCount % deltaT == 0) println(preyData);
+  if (frameCount % deltaT * 50 == 0) {
+    println("prey: " + preyData);
+    println("predator: " + predatorData);
+  }
   // Animal movements
   for (int i = 0; i < predators.size(); ++i) {
-    predators.get(i).step();
-    
+    Predator predator = predators.get(i);
+    //move
+    predator.step();
+    //decay
     if (frameCount % deltaT == 0) {
-      for (int j = 0; j < preys.size(); ++j) {
-        if (checkCollision(predators.get(i), preys.get(j))) {
-          preys.remove(j);
-          if (random(0, 1) < d && predators.get(i).children < 3) {
-            addPredator(predators.get(i).xPos, predators.get(i).yPos);
-            ++predators.get(i).children;
-          }
+      if (predator.age > predatorDeath || random(0, 1) < c) {
+        predators.remove(i);
+        --i;
+        continue;
+      }
+    }
+    // draw
+    if (isVisual) predator.display();
+    // check for prey to eat
+    for (int j = 0; j < preys.size(); ++j) {
+      Prey prey = preys.get(j);
+      // if in vicinity of prey and rolls eat
+      if (checkCollision(predator, prey) && random(0, 1) < b) {
+        preys.remove(j);
+        --j;
+        // chance to birth
+        if (random(0, 1) < d) {
+          addPredator(predator.xPos, predator.yPos);
+          ++predator.children;
         }
       }
     }
-    // decay
-    if (frameCount % deltaT == 0 && random(0, 1) < c) {
-      predators.remove(i);
-      --i;
-      continue;
-    }
-    predators.get(i).display();
   }
   for (int i = 0; i < preys.size(); ++i) {
-    preys.get(i).step();
-    preys.get(i).display();
+    
+    Prey prey = preys.get(i);
+    prey.step();
+    // growth
+    if (frameCount % deltaT == 0 && random(0, 1) < a) {
+      addPrey(prey.xPos, prey.yPos);
+      ++prey.children;
+    }
+    if (isVisual) prey.display();
   }
 
   // Log x and y data
@@ -141,11 +161,7 @@ class Prey extends Creature {
   }
   void step() {
     super.step();
-    // growth
-    if (frameCount % deltaT == 0 && random(0, 1) < a && children < 3) {
-      addPrey(xPos, yPos);
-      ++children;
-    }
+
   }
   void display() {
     fill(255, 80, 80);
