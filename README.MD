@@ -1,4 +1,5 @@
 # Lotka Volterra
+index.html:
 Models LK using chart.js. Using this for intro to game theory class.
 
 Variables a-f are alpha-zeta in alphabetical order.
@@ -14,5 +15,10 @@ ch(e,f)@t are second times for harvest rates to be implemented.
 (e,f)2 are the values to change to for ch(e,f)@t.
 Note this is to implement a second harvest rate to deal with the shocks.
 
-Demo here:
-https://jsfiddle.net/yinghaowang/jxym6n7n/
+reader.html:
+Takes in 2 data sets, and graphs it (used for data from processing sim)
+
+Lotka-Volterra simulation made with Procession 3.0:
+Located in the lv-sim/ folder.
+Prey and predator simulation where predator eats prey, etc. Generates data and chart
+which enforces the Lotka Volterra model.
