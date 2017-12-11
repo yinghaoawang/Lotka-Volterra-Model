@@ -16,21 +16,61 @@ float dirChangeT = 30; // how often predator/prey change directions (higher = lo
 float predatorRadius = 3; // size of predator (only a visual)
 float preyRadius = 3; // size of prey (larger is like larger b)
 float huntRadius = predatorRadius; // size of predator can hunt prey (larger is like larger b)
-float predatorDeath = deltaT * 999999999; // predator lifespan. infinite = disabled
 float deltaT = 30; // how many frames does it take for 1 set of lv calculations
+float predatorDeath = deltaT * 999999999; // predator lifespan. infinite = disabled
 
 // toggle these as needed
 boolean isVisual = false; // sim visuals
-boolean isDrawChart = true; // line chart of x and y data
+boolean isDrawChart = false; // line chart of x and y data
+
+Button chartButton = new Button(width - 100, 10, 40, 10);
+Button visualButton = new Button(width - 50, 10, 40, 10);
 
 void setup() {
   size(1600, 1600);
   frameRate(60);
   preyData.add(x0);
   predatorData.add(y0);
+  color c = color(255, 255, 0);
+  chartButton.setColor(c);
+  c = color(255, 0, 255);
+  visualButton.setColor(c);
   // add initial prey and predator
   for (int i = 0; i < x0; ++i) addRandomPrey();
   for (int i = 0; i < y0; ++i) addRandomPredator();
+}
+
+void mouseReleased() {
+  if (mouseOver(chartButton)) {
+    isDrawChart = !isDrawChart;
+  }
+  if (mouseOver(visualButton)) {
+    isVisual = !isVisual;
+  }
+}
+
+boolean mouseOver(Button b) {
+  return mouseX >= b.xPos && mouseX <= b.xPos + b.w && 
+         mouseY >= b.yPos && mouseY <= b.yPos + b.h;
+}
+
+class Button {
+  float xPos, yPos, w, h;
+  color c;
+  
+  Button(float xPos, float yPos, float w, float h) {
+    this.xPos = xPos;
+    this.yPos = yPos;
+    this.w = w;
+    this.h = h;
+  }
+  void setColor(color c) {
+    this.c = c;
+  }
+  void display() {
+    fill(c);
+    rect(xPos, yPos, w, h);
+  }
 }
 
 // checks collision of 2 circular objects
@@ -57,10 +97,13 @@ void drawChart(ArrayList<Integer> dataset1, ArrayList<Integer> dataset2, int max
   float maxY = Math.max(max1, max2);
   
   
-  strokeWeight(5);
-  line(startX, startY, startX, endY);
-  line(startX, endY, endX, endY);
+  // draw chart background
+  fill(240);
+  noStroke();
+  rect(startX, startY, endX-startX, endY-startY);
   
+  stroke(0);
+  strokeWeight(3);
   // draw ds1
   float prevVal = 0;
   float currVal = 0;
@@ -70,6 +113,7 @@ void drawChart(ArrayList<Integer> dataset1, ArrayList<Integer> dataset2, int max
     if (i == 0) continue;
     float currX = i * deltaX;
     float prevX = currX - deltaX;
+    stroke(255, 80, 80);
     line(startX + prevX, endY - (endY - startY) * (prevVal/maxY), startX + currX, endY - (endY - startY) * (currVal/maxY));  
   }
   // draw ds2
@@ -80,14 +124,25 @@ void drawChart(ArrayList<Integer> dataset1, ArrayList<Integer> dataset2, int max
     currVal = dataset2.get(i);
     if (i == 0) continue;
     float currX = i * deltaX;
-    float prevX = currX - deltaX;    
+    float prevX = currX - deltaX;  
+    stroke(80, 80, 255);
+
     line(startX + prevX, endY - (endY - startY) * (prevVal/maxY), startX + currX, endY - (endY - startY) * (currVal/maxY));  
   }
+  
+  // draw chart x and y axis
+  float xOffset = (endX - startX) / 80;
+  float yOffset = (endY - startY) / 80;
+  float tickSize = min(xOffset, yOffset);
+  line(startX, startY, startX, endY);
+  line(startX, endY, endX, endY);
   
 }
 
 void draw() {
   background(200);
+  chartButton.display();
+  visualButton.display();
   // draw chart if enabled
   if (isDrawChart) {
     drawChart(preyData, predatorData, maxPrey, maxPredator);
