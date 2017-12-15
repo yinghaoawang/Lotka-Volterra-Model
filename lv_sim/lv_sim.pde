@@ -6,8 +6,8 @@ int maxPrey;
 int maxPredator;
 
 // variables to change
-int x0 = 500;
-int y0 = 1000;
+int x0 = 1800;
+int y0 = 600;
 float a = .25; // % chance for a prey to reproduce per deltaT
 float b = .5; // % chance for predator to kill prey on contact per delta%
 float c = .15; // % chance for a predator to die per deltaT
@@ -134,8 +134,6 @@ void drawChart(ArrayList<Integer> dataset1, ArrayList<Integer> dataset2, int max
   }
   
   // draw chart x and y axis
-  float xOffset = (endX - startX) / 80;
-  float yOffset = (endY - startY) / 80;
   //float tickSize = min(xOffset, yOffset);
   stroke(0);
   line(startX, startY, startX, endY);
@@ -163,6 +161,13 @@ void draw() {
     predator.step();
     //decay
     if (frameCount % deltaT == 0) {
+      if (predators.size() > preys.size()) {
+        if (random(0, 1) < c+.2) {// active management
+          predators.remove(i);
+          --i;
+          continue;
+        }
+      } else
       if (predator.age > predatorDeath || random(0, 1) < c) {
         predators.remove(i);
         --i;
