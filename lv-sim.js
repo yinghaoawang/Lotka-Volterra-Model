@@ -17,7 +17,7 @@ var LVSim = function(canvas) {
     this.b = .15;
     this.c = .15;
     this.d = .1;
-    this.dirChangeT = 30;
+    this.dirChangeT = 10;
     this.predatorSize = 1;
     this.preySize = 1;
     this.deltaT = 30;
@@ -48,7 +48,7 @@ var LVSim = function(canvas) {
         for (var i = 0; i < this.predators.length; ++i) this.predators[i].move();
 
         // change direction at given times
-        if (this.frameCount % this.dirChangeT) {
+        if (this.frameCount % this.dirChangeT == 0) {
             for (var i = 0; i < this.preys.length; ++i) this.preys[i].changeDirection();
             for (var i = 0; i < this.predators.length; ++i) this.predators[i].changeDirection();
         }
@@ -62,7 +62,7 @@ var LVSim = function(canvas) {
     this.draw = function() {
         // clears screen
         this.ctx.clearRect(0, 0, this.width, this.height);
-        // draw and move predator/prey every frame
+        // draw predator/prey every frame
         for (var i = 0; i < this.preys.length; ++i) {
             this.preys[i].display(this.ctx);
         }
@@ -101,8 +101,10 @@ class Creature {
     }
     // changes direction to a random direction based on speed
     changeDirection() {
-        this.xVel = Math.random(-1 * this.speed, this.speed);
-        this.yVel = Math.random(-1 * this.speed, this.speed);
+        this.xVel = Math.random() * this.speed;
+        this.yVel = Math.random() * this.speed;
+        if (Math.random() < .5) this.xVel *= -1;
+        if (Math.random() < .5) this.yVel *= -1;
     }
     display(ctx) {
         // draw circle
