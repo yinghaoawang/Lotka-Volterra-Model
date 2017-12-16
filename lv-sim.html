@@ -11,15 +11,44 @@
     <body>
         <div class='container'>
             <canvas id='canvas' width='600' height='300'></canvas>
+        <div class='container'>
+            <button class='btn btn-default' id='resetBtn'>Reset</button>
+            <button class='btn btn-primary' id='resumeBtn'>Resume</button>
+            <button class='btn btn-danger' id='pauseBtn'>Pause</button>
         </div>
         <div class='container'>
             <a href='index.html'>Lotka-Volterra Model</a>
         </div>
+
+        <!-- Sim runner script & sim script -->
         <script src='lv-sim.js'></script>
         <script type='text/javascript'>
             var lvsim = new LVSim(document.getElementById('canvas'));
+            var running = false;
+            var intervalID;
+
+            // initial run
             lvsim.init();
-            lvsim.run();
+            intervalID = lvsim.run();
+            running = true;
+
+            // event listeners for buttons
+            $('#resetBtn').click(function() {
+                lvsim.init();
+            });
+            $('#resumeBtn').click(function() {
+                if (!running) {
+                    intervalID = lvsim.run();
+                    running = true;
+                }
+            });
+            $('#pauseBtn').click(function() {
+                if (running) {
+                    clearInterval(intervalID);
+                    console.log(intervalID);
+                    running = false;
+                }
+            });
         </script>
     </body>
 </html>

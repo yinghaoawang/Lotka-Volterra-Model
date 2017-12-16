@@ -9,7 +9,8 @@ var LVSim = function(canvas) {
     var x0, y0;
     var data;
     var frameCount;
-    var fps = 30;
+    var fps;
+    this.fps = 30;
     this.ctx = canvas.getContext('2d');
     this.width = canvas.width;
     this.height = canvas.height;
@@ -35,10 +36,12 @@ var LVSim = function(canvas) {
     // update and draw loop
     this.run = function() {
         var self = this;
-        setInterval(function() {
+        var intervalID = setInterval(function() {
             self.update();
             self.draw();
-        }, 1000/fps);
+        }, 1000/this.fps);
+        this.intervalID = intervalID;
+        return intervalID;
     }
     // move creature to other side of bounds if out of bounds
     this.keepInBounds = function(creature) {
