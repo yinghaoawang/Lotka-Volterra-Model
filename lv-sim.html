@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
         <title>Lotka-Volterra Simulation</title>
         <script src='Chart.min.js'></script>
         <script src='jquery-3.2.1.min.js'></script>
@@ -9,15 +10,16 @@
     </head>
     <body>
         <div class='container'>
-            <canvas id='canvas'></canvas>
+            <canvas id='canvas' width='600' height='300'></canvas>
         </div>
         <div class='container'>
             <a href='index.html'>Lotka-Volterra Model</a>
         </div>
         <script src='lv-sim.js'></script>
         <script type='text/javascript'>
-            var lvsim = new LVSim($('#canvas'));
+            var lvsim = new LVSim(document.getElementById('canvas'));
             lvsim.init();
+            lvsim.run();
         </script>
     </body>
 </html>
