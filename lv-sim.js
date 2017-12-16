@@ -27,14 +27,12 @@ var LVSim = function(canvas) {
         this.data = [[], []]
         this.preys = [];
         this.predators = [];
-        for (var i = 0; i < this.x0; ++i) {
-            this.preys.push(this.newRandomPrey());
-        }
+        for (var i = 0; i < this.x0; ++i) this.preys.push(this.newRandomPrey());
         for (var i = 0; i < this.y0; ++i) this.predators.push(this.newRandomPredator());
-
         this.frameCount = 0;
         this.draw();
     }
+    // update and draw loop
     this.run = function() {
         var self = this;
         setInterval(function() {
@@ -42,10 +40,23 @@ var LVSim = function(canvas) {
             self.draw();
         }, 1000/fps);
     }
+    // move creature to other side of bounds if out of bounds
+    this.keepInBounds = function(creature) {
+        if (creature.xPos > this.width) creature.xPos -= this.width;
+        if (creature.xPos < 0) creature.xPos += this.width;
+        if (creature.yPos > this.height) creature.yPos -= this.height;
+        if (creature.yPos < 0) creature.yPos += this.height;
+    }
     this.update = function() {
         // move predators every frame
-        for (var i = 0; i < this.preys.length; ++i) this.preys[i].move();
-        for (var i = 0; i < this.predators.length; ++i) this.predators[i].move();
+        for (var i = 0; i < this.preys.length; ++i) {
+            this.preys[i].move();
+            this.keepInBounds(this.preys[i]);
+        }
+        for (var i = 0; i < this.predators.length; ++i) {
+            this.predators[i].move();
+            this.keepInBounds(this.predators[i]);
+        }
 
         // change direction at given times
         if (this.frameCount % this.dirChangeT == 0) {
@@ -89,8 +100,9 @@ class Creature {
         this.xPos = xPos;
         this.yPos = yPos;
         this.speed = 3;
-        this.xVel = Math.random(-1 * this.speed, this.speed);
-        this.yVel = Math.random(-1 * this.speed, this.speed);
+        this.xVel = 0;
+        this.yVel = 0;
+        this.changeDirection();
         this.size = size;
         this.age = 0;
         this.color = new Color(0, 0, 0);
