@@ -95,6 +95,10 @@ var LVSim = function(canvas) {
                 --i;
                 continue;
             }
+            // predator hunt
+            for (var i = 0; i < preys.length; ++i) {
+                
+            }
             ++predator.age;
         }
         this.logData();
