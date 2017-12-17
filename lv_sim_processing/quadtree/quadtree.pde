@@ -1,13 +1,15 @@
 class GridObject {
-  float x, y;
+  float x, y, xVel, yVel;
   GridObject(float x, float y) {
     this.x = x;
     this.y = y;
+    this.xVel = 0;
+    this.yVel = 0;
   }
   void display() {
-    noStroke();
-    fill(200, 80, 80);
-    ellipse(x, y, 5, 5);
+    stroke(0);
+    fill(80, 80, 80);
+    ellipse(x, y, 10, 10);
   }
 }
 
@@ -38,7 +40,7 @@ class QTNode {
     noFill();
     stroke(0);
     rect(minX, minY, maxX-minX, maxY-minY);
-    if (datum != null) datum.display();
+    //if (datum != null) datum.display();
   }
   String toString() {
     return this.minX + ", " + this.maxX + ' ' + this.minY + ", " + this.maxY;
@@ -48,9 +50,11 @@ class QTNode {
 class QuadTree {
   QTNode head;
   int maxDepth;
+  float epsilon;
   QuadTree(float x, float y) {
     head = new QTNode(x, y);
     maxDepth = 5;
+    epsilon = 0;
   }
   void insert(float x, float y) {
     GridObject obj = new GridObject(x, y);
@@ -66,14 +70,14 @@ class QuadTree {
         node = node.nextSibling;
         continue;
       }
-      println(x + ", " + y + " Is in " + node.minX + ", " + node.maxX + "-" + node.minY + ", " + node.maxY);
+      //println(x + ", " + y + " Is in " + node.minX + ", " + node.maxX + "-" + node.minY + ", " + node.maxY);
       if (node.children != null) {
         node = node.children[0];
         continue;
       }
       if (node.datum != null) {
         //if (node.datum.x == obj.x && node.datum.y == obj.y) break; // TODO REMOVE
-        if (Math.abs(node.datum.x - obj.x) <= 0 || Math.abs(node.datum.y - obj.y) <= 0) break; // TODO REMOVE
+        if (Math.abs(node.datum.x - obj.x) <= epsilon || Math.abs(node.datum.y - obj.y) <= epsilon) break; // TODO REMOVE
         createChildNodes(node);
         transferObjIntoChildNodes(node);
         node = node.children[0];
@@ -82,7 +86,7 @@ class QuadTree {
       node.datum = obj;
       break;
     }
-    println("inserted " + obj.x + " " + obj.y);
+    //println("inserted " + obj.x + " " + obj.y);
   }
   boolean in(QTNode node, float x, float y) {
     return x >= node.minX && x <= node.maxX && y >= node.minY && y <= node.maxY;
@@ -109,7 +113,7 @@ class QuadTree {
     node.children[0].nextSibling = node.children[1];
     node.children[1].nextSibling = node.children[2];
     node.children[2].nextSibling = node.children[3];
-    println(node.children[1]);
+    //println(node.children[1]);
   }
   void display() {
     ArrayList<QTNode> list = new ArrayList<QTNode>();
@@ -125,16 +129,36 @@ class QuadTree {
 
 
 QuadTree qt;
+ArrayList<GridObject> objs;
 void mouseClicked() {
-  qt.insert(new GridObject(mouseX, mouseY));
+  objs.add(new GridObject(mouseX, mouseY));
 }
 void setup() {
   size(1000, 1000);
   
-  qt = new QuadTree(width, height);
-  
+  objs = new ArrayList<GridObject>();
 }
 void draw() {
-  background(80);
+  background(230);
+  qt = new QuadTree(width, height);
+  for (int i = 0; i < objs.size(); ++i) {
+    GridObject obj = objs.get(i);
+    if (frameCount % 30 == 0) {
+      obj.xVel = (float)Math.random() * 5;
+      obj.yVel = (float)Math.random() * 5;
+      if (Math.random() < .5) obj.xVel *= -1;
+      if (Math.random() < .5) obj.yVel *= -1;
+    }
+    obj.x += obj.xVel;
+    obj.y += obj.yVel;
+    if (obj.x > width) obj.x -= width;
+    if (obj.x < 0) obj.x += width;
+    if (obj.y > height) obj.y -= height;
+    if (obj.y < 0) obj.y += height;
+    
+    obj.display();
+    qt.insert(obj);
+  }
+
   qt.display();
 }
