@@ -40,6 +40,9 @@ class QTNode {
     rect(minX, minY, maxX-minX, maxY-minY);
     if (datum != null) datum.display();
   }
+  String toString() {
+    return this.minX + ", " + this.maxX + ' ' + this.minY + ", " + this.maxY;
+  }
 }
 
 class QuadTree {
@@ -63,11 +66,14 @@ class QuadTree {
         node = node.nextSibling;
         continue;
       }
+      println(x + ", " + y + " Is in " + node.minX + ", " + node.maxX + "-" + node.minY + ", " + node.maxY);
       if (node.children != null) {
         node = node.children[0];
         continue;
       }
       if (node.datum != null) {
+        //if (node.datum.x == obj.x && node.datum.y == obj.y) break; // TODO REMOVE
+        if (Math.abs(node.datum.x - obj.x) <= 0 || Math.abs(node.datum.y - obj.y) <= 0) break; // TODO REMOVE
         createChildNodes(node);
         transferObjIntoChildNodes(node);
         node = node.children[0];
@@ -79,7 +85,7 @@ class QuadTree {
     println("inserted " + obj.x + " " + obj.y);
   }
   boolean in(QTNode node, float x, float y) {
-    return x >= head.minX && x <= head.maxX && y >= node.minY && y <= node.maxY;
+    return x >= node.minX && x <= node.maxX && y >= node.minY && y <= node.maxY;
   }
   void transferObjIntoChildNodes(QTNode node) {
     GridObject obj = node.datum;
@@ -103,6 +109,7 @@ class QuadTree {
     node.children[0].nextSibling = node.children[1];
     node.children[1].nextSibling = node.children[2];
     node.children[2].nextSibling = node.children[3];
+    println(node.children[1]);
   }
   void display() {
     ArrayList<QTNode> list = new ArrayList<QTNode>();
