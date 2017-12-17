@@ -63,6 +63,25 @@ class QuadTree {
   void insert(GridObject obj) {
     insert(obj, obj.x, obj.y);
   }
+  GridObject search(float x, float y) {
+    QTNode node = head;
+    while (node != null) {
+      if (!in(node, x, y)) {
+        node = node.nextSibling;
+        continue;
+      }
+      if (node.children != null) {
+        node = node.children[0];
+        continue;
+      }
+      if (node.datum != null && node.datum.x == x && node.datum.y == y) {
+        //println("found: " + x + ", " + y);
+        return node.datum;
+      }
+      break;
+    }
+    return null;
+  }
   void insert(GridObject obj, float x, float y) {
     QTNode node = head;
     while (node != null) {
@@ -127,20 +146,23 @@ class QuadTree {
   }
 }
 
-
-QuadTree qt;
+// globals
 ArrayList<GridObject> objs;
+int initCount = 0;//1000;
+
 void mouseClicked() {
   objs.add(new GridObject(mouseX, mouseY));
 }
 void setup() {
-  size(1000, 1000);
-  
+  size(2000, 1500); 
   objs = new ArrayList<GridObject>();
+  for (int i = 0 ; i < initCount; ++i) {
+    objs.add(new GridObject((int)(Math.random() * width), (int)(Math.random() * height)));
+  }
 }
 void draw() {
   background(230);
-  qt = new QuadTree(width, height);
+  QuadTree qt = new QuadTree(width, height);
   for (int i = 0; i < objs.size(); ++i) {
     GridObject obj = objs.get(i);
     if (frameCount % 30 == 0) {
@@ -148,6 +170,7 @@ void draw() {
       obj.yVel = (float)Math.random() * 5;
       if (Math.random() < .5) obj.xVel *= -1;
       if (Math.random() < .5) obj.yVel *= -1;
+      //println(frameRate);
     }
     obj.x += obj.xVel;
     obj.y += obj.yVel;
@@ -158,6 +181,11 @@ void draw() {
     
     obj.display();
     qt.insert(obj);
+  }
+  if (frameCount % 30 == 0 && objs.size() > 0) {
+    GridObject obj = objs.get((int)(Math.random() * objs.size()));
+    GridObject found = qt.search(obj.x, obj.y);
+    //println(obj + " " + found);
   }
 
   qt.display();
