@@ -1,15 +1,4 @@
 var LVSim = function(canvas) {
-    var canvas, ctx;
-    var width, height;
-    var a, b, c, d;
-    var dirChangeT;
-    var preySize, predatorSize;
-    var deltaT;
-    var preys, predators;
-    var x0, y0;
-    var data;
-    var frameCount;
-    var fps;
     this.fps = 30;
     this.ctx = canvas.getContext('2d');
     this.width = canvas.width;
@@ -30,6 +19,8 @@ var LVSim = function(canvas) {
         this.predators = [];
         for (var i = 0; i < this.x0; ++i) this.preys.push(this.newRandomPrey());
         for (var i = 0; i < this.y0; ++i) this.predators.push(this.newRandomPredator());
+        // log initial data
+        //this.logData();
         this.frameCount = 0;
         this.draw();
     }
@@ -39,6 +30,7 @@ var LVSim = function(canvas) {
         var intervalID = setInterval(function() {
             self.update();
             self.draw();
+            ++self.frameCount;
         }, 1000/this.fps);
         this.intervalID = intervalID;
         return intervalID;
@@ -50,15 +42,18 @@ var LVSim = function(canvas) {
         if (creature.yPos > this.height) creature.yPos -= this.height;
         if (creature.yPos < 0) creature.yPos += this.height;
     }
+    // creature interactions every frame
     this.update = function() {
-        // move predators every frame
+        // move prey and predators
         for (var i = 0; i < this.preys.length; ++i) {
-            this.preys[i].move();
-            this.keepInBounds(this.preys[i]);
+            var prey = this.preys[i];
+            prey.move()
+            this.keepInBounds(prey);
         }
         for (var i = 0; i < this.predators.length; ++i) {
-            this.predators[i].move();
-            this.keepInBounds(this.predators[i]);
+            var predator = this.predators[i];
+            predator.move()
+            this.keepInBounds(predator);
         }
 
         // change direction at given times
@@ -68,11 +63,48 @@ var LVSim = function(canvas) {
         }
 
         // actions for a step
-        if (this.frameCount % this.deltaT == 0) {
-            this.data[0].push(this.preys.length);
-            this.data[1].push(this.predators.length);
-        }
+        if (this.frameCount % this.deltaT == 0) this.deltaTStep();
     }
+    // actions every deltaT: reproduction, decay, hunting
+    this.deltaTStep = function() {
+        for (var i = 0; i < this.preys.length; ++i) {
+            var prey = this.preys[i];
+            // prevents recently produced babies from reproducing
+            if (prey.age < 1) {
+                ++prey.age;
+                continue;
+            }
+            // prey reproduction
+            if (Math.random() < this.a) {
+                var preyChild = new Prey(prey.xPos, prey.yPos, prey.size);
+                this.preys.push(preyChild);
+                continue;
+            }
+            ++prey.age;
+        }
+        for (var i = 0; i < this.predators.length; ++i) {
+            var predator = this.predators[i];
+            // prevents recently produced babies from decaying
+            if (predator.age < 1) {
+                ++predator.age;
+                continue;
+            }
+            // predator decay
+            if (Math.random() < this.c) {
+                this.predators.pop(i);
+                --i;
+                continue;
+            }
+            ++predator.age;
+        }
+        this.logData();
+    }
+    // stores the creature data into the data array
+    this.logData = function() {
+        this.data[0].push(this.preys.length);
+        this.data[1].push(this.predators.length);
+    }
+    // draw preys and predators onto canvas
     this.draw = function() {
         // clears screen
         this.ctx.clearRect(0, 0, this.width, this.height);
@@ -83,10 +115,6 @@ var LVSim = function(canvas) {
         for (var i = 0; i < this.predators.length; ++i) {
             this.predators[i].display(this.ctx);
         }
-
-        // increment frameCount
-        ++this.frameCount;
-        console.log(this.frameCount);
     }
     // helpers
     this.newRandomPrey = function() {
