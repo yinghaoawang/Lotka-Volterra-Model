@@ -1,3 +1,30 @@
+// Determines if a rectangular object is in another rectangular object
+boolean in(GridObject obj1, GridObject obj2) {
+  return (in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x - obj2.w/2) || in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x + obj2.w/2)) &&
+         (in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y - obj2.h/2) || in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y + obj2.h/2));
+}
+// Determines if a rectangular object is in a node/block
+boolean in(QTNode node, GridObject obj) {
+  return (in(node.minX, node.maxX, obj.x - obj.w/2) || in(node.minX, node.maxX, obj.x + obj.w/2)) &&
+         (in(node.minY, node.maxY, obj.y - obj.h/2) || in(node.minY, node.maxY, obj.y + obj.h/2));
+}
+// Determines if a point is in bounds of the node/block
+boolean in(QTNode node, float x, float y) {
+  return in(node.minX, node.minY, node.maxX, node.maxY, x, y);
+}
+// Determines if a point is in bounds of a rectangular grid object
+boolean in(GridObject obj, float x, float y) {
+  return in(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, x, y);
+}
+// Determines if point x,y are in square x1-x2,y1-y2
+boolean in(float x1, float y1, float x2, float y2, float x, float y) {
+  return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+}
+// Determines if point x or y is on line x2x1 or y2y1 respectively
+boolean in(float first, float second, float point) {
+  return point >= first && point <= second;
+}
+
 // Object stored in the Quad Tree
 class GridObject {
   float x, y, xVel, yVel;
@@ -36,14 +63,12 @@ class QTNode {
   float minX, maxX, minY, maxY;
   Point point;
   QTNode parent;
-  QTNode nextSibling;
   QTNode[] children;
   ArrayList<GridObject> objects;
   QTNode(float minX, float maxX, float minY, float maxY, QTNode parent) {
     objects = null;
     children = null;
     this.parent = parent;
-    this.nextSibling = null;
     this.minX = minX;
     this.minY = minY;
     this.maxX = maxX;
@@ -62,6 +87,29 @@ class QTNode {
     stroke(0);
     rect(minX, minY, maxX-minX, maxY-minY);
   }
+  
+    
+  void placePointInChildren(Point point) {
+    for (int i = 0; i < children.length; ++i) {
+      QTNode childNode = children[i];
+      if (in(childNode, point.x, point.y)) {
+        childNode.point = point;
+        break;
+      }
+    }
+  }
+  
+  // Create 4 child nodes in a node
+  void createChildren() {
+    float centerX = (minX + maxX)/2;
+    float centerY = (minY + maxY)/2;
+    children = new QTNode[4];
+    children[0] = new QTNode(minX, centerX, minY, centerY, this);
+    children[1] = new QTNode(centerX, maxX, minY, centerY, this);
+    children[2] = new QTNode(minX, centerX, centerY, maxY, this);
+    children[3] = new QTNode(centerX, maxX, centerY, maxY, this);
+  }
+  
   String toString() {
     // Draws the block the node represents
     return this.minX + ", " + this.maxX + ' ' + this.minY + ", " + this.maxY;
@@ -78,19 +126,22 @@ class QuadTree {
     epsilon = 0;
   }
 
-  Point search(float x, float y) {
+  // returns first grid object with corresponding x and y position
+  GridObject search(float x, float y) {
     QTNode node = head;
     while (node != null) {
       if (!in(node, x, y)) {
-        node = node.nextSibling;
         continue;
       }
       if (node.children != null) {
         node = node.children[0];
         continue;
       }
-      if (node.point != null && node.point.x == x && node.point.y == y) {
-        return node.point;
+      if (node.point != null && node.objects != null && node.point.x == x && node.point.y == y) {
+        for (int i = 0; i < node.objects.size(); ++i) {
+          GridObject obj = node.objects.get(i);
+          if (obj.x == x && obj.y == y) return obj;
+        }
       }
       break;
     }
@@ -99,82 +150,36 @@ class QuadTree {
   
   // Insert a point into 
   void insert(GridObject obj) {
-    /*
-    QTNode node = head;
-    while (node != null) {
-      if (!in(node, obj.x, obj.y)) {
-        node = node.nextSibling;
-        continue;
-      }
-      if (node.children != null) {
-        node = node.children[0];
-        continue;
-      }
-      if (node.datum != null) {
-        if (Math.abs(node.datum.x - obj.x) <= epsilon || Math.abs(node.datum.y - obj.y) <= epsilon) break; // TODO REMOVE
-        createChildNodes(node);
-        transferObjIntoChildNodes(node);
-        node = node.children[0];
-        continue;
-      }
-      node.datum = obj;
-      continue;
-    }
-    */
+    insert(head, obj);
   }
-  
-  // Determines if a rectangular object is in another rectangular object
-  boolean in(GridObject obj1, GridObject obj2) {
-    return (in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x - obj2.w/2) || in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x + obj2.w/2)) &&
-           (in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y - obj2.h/2) || in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y + obj2.h/2));
-  }
-  // Determines if a rectangular object is in a node/block
-  boolean in(QTNode node, GridObject obj) {
-    return (in(node.minX, node.maxX, obj.x - obj.w/2) || in(node.minX, node.maxX, obj.x + obj.w/2)) &&
-           (in(node.minY, node.maxY, obj.y - obj.h/2) || in(node.minY, node.maxY, obj.y + obj.h/2));
-  }
-  // Determines if a point is in bounds of the node/block
-  boolean in(QTNode node, float x, float y) {
-    return in(node.minX, node.minY, node.maxX, node.maxY, x, y);
-  }
-  // Determines if a point is in bounds of a rectangular grid object
-  boolean in(GridObject obj, float x, float y) {
-    return in(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, x, y);
-  }
-  // Determines if point x,y are in square x1-x2,y1-y2
-  boolean in(float x1, float y1, float x2, float y2, float x, float y) {
-    return x >= x1 && x <= x2 && y >= y1 && y <= y2;
-  }
-  // Determines if point x or y is on line x2x1 or y2y1 respectively
-  boolean in(float first, float second, float point) {
-    return point >= first && point <= second;
-  }
-  
-  void transferObjIntoChildNodes(QTNode node) {
-    GridObject obj = node.datum;
-    for (int i = 0; i < node.children.length; ++i) {
-      QTNode childNode = node.children[i];
-      if (in(childNode, obj.x, obj.y)) {
-        childNode.datum = obj;
-        node.datum = null;
-        break;
-      }
+  void insert(QTNode[] nodes, GridObject obj) {
+    for (int i = 0; i < nodes.length; ++i) {
+      insert(nodes[i], obj);
     }
   }
-  
-  // Create 4 child nodes in a node
-  void createChildNodes(QTNode node) {
-    float centerX = (node.minX + node.maxX)/2;
-    float centerY = (node.minY + node.maxY)/2;
-    node.children = new QTNode[4];
-    node.children[0] = new QTNode(node.minX, centerX, node.minY, centerY, node);
-    node.children[1] = new QTNode(centerX, node.maxX, node.minY, centerY, node);
-    node.children[2] = new QTNode(node.minX, centerX, centerY, node.maxY, node);
-    node.children[3] = new QTNode(centerX, node.maxX, centerY, node.maxY, node);
-    node.children[0].nextSibling = node.children[1];
-    node.children[1].nextSibling = node.children[2];
-    node.children[2].nextSibling = node.children[3];
+  void insert(QTNode node, GridObject obj) {
+    if (!in(node, obj.x, obj.y)) return;
+    if (node.children != null) {
+      insert(node.children, obj);
+      return;
+    }
+    if (node.point != null) {
+      if (!(Math.abs(node.point.x - obj.x) <= epsilon) && !(Math.abs(node.point.y - obj.y) <= epsilon)) {
+        node.createChildren();
+        node.placePointInChildren(node.point);
+        node.point = null;
+        insert(node.children, obj);
+        return;
+      }
+    }
+    if (node.objects == null) node.objects = new ArrayList<GridObject>();
+    node.objects.add(obj);
+    node.point = new Point(obj.x, obj.y);
   }
+  
+  
+
+
   
   // Draw all the nodes/blocks in the tree
   void display() {
