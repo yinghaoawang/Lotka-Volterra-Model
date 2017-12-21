@@ -1,30 +1,46 @@
 // Object stored in the Quad Tree
 class GridObject {
   float x, y, xVel, yVel;
+  float w, h;
   color c;
   GridObject(float x, float y) {
+    this(x, y, 45, 45);
+  }
+  GridObject(float x, float y, float w, float h) {
     this.x = x;
     this.y = y;
+    this.w = w;
+    this.h = h;
     this.xVel = 0;
     this.yVel = 0;
     this.c = color(80, 80, 80);
   }
   void display() {
+    rectMode(CENTER);
     noStroke();
     fill(c);
-    ellipse(x, y, 5, 5);
+    rect(x, y, w, h);
+  }
+}
+
+class Point {
+  float x, y;
+  Point(float x, float y) {
+    this.x = x;
+    this.y = y;
   }
 }
 
 // Node used in the Quad Tree
 class QTNode {
   float minX, maxX, minY, maxY;
+  Point point;
   QTNode parent;
   QTNode nextSibling;
   QTNode[] children;
-  GridObject datum;
+  ArrayList<GridObject> objects;
   QTNode(float minX, float maxX, float minY, float maxY, QTNode parent) {
-    datum = null;
+    objects = null;
     children = null;
     this.parent = parent;
     this.nextSibling = null;
@@ -32,6 +48,7 @@ class QTNode {
     this.minY = minY;
     this.maxX = maxX;
     this.maxY = maxY;
+    this.point = null;
   }
   QTNode(float minX, float maxX, float minY, float maxY) {
     this(minX, maxX, minY, maxY, null);
@@ -40,6 +57,7 @@ class QTNode {
     this(0, x, 0, y);
   }
   void display() {
+    rectMode(CORNER);
     noFill();
     stroke(0);
     rect(minX, minY, maxX-minX, maxY-minY);
@@ -60,7 +78,7 @@ class QuadTree {
     epsilon = 0;
   }
 
-  GridObject search(float x, float y) {
+  Point search(float x, float y) {
     QTNode node = head;
     while (node != null) {
       if (!in(node, x, y)) {
@@ -71,8 +89,8 @@ class QuadTree {
         node = node.children[0];
         continue;
       }
-      if (node.datum != null && node.datum.x == x && node.datum.y == y) {
-        return node.datum;
+      if (node.point != null && node.point.x == x && node.point.y == y) {
+        return node.point;
       }
       break;
     }
@@ -81,6 +99,7 @@ class QuadTree {
   
   // Insert a point into 
   void insert(GridObject obj) {
+    /*
     QTNode node = head;
     while (node != null) {
       if (!in(node, obj.x, obj.y)) {
@@ -92,7 +111,6 @@ class QuadTree {
         continue;
       }
       if (node.datum != null) {
-        //if (node.datum.x == obj.x && node.datum.y == obj.y) break; // TODO REMOVE
         if (Math.abs(node.datum.x - obj.x) <= epsilon || Math.abs(node.datum.y - obj.y) <= epsilon) break; // TODO REMOVE
         createChildNodes(node);
         transferObjIntoChildNodes(node);
@@ -100,14 +118,38 @@ class QuadTree {
         continue;
       }
       node.datum = obj;
-      break;
+      continue;
     }
+    */
   }
   
+  // Determines if a rectangular object is in another rectangular object
+  boolean in(GridObject obj1, GridObject obj2) {
+    return (in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x - obj2.w/2) || in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x + obj2.w/2)) &&
+           (in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y - obj2.h/2) || in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y + obj2.h/2));
+  }
+  // Determines if a rectangular object is in a node/block
+  boolean in(QTNode node, GridObject obj) {
+    return (in(node.minX, node.maxX, obj.x - obj.w/2) || in(node.minX, node.maxX, obj.x + obj.w/2)) &&
+           (in(node.minY, node.maxY, obj.y - obj.h/2) || in(node.minY, node.maxY, obj.y + obj.h/2));
+  }
   // Determines if a point is in bounds of the node/block
   boolean in(QTNode node, float x, float y) {
-    return x >= node.minX && x <= node.maxX && y >= node.minY && y <= node.maxY;
+    return in(node.minX, node.minY, node.maxX, node.maxY, x, y);
   }
+  // Determines if a point is in bounds of a rectangular grid object
+  boolean in(GridObject obj, float x, float y) {
+    return in(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, x, y);
+  }
+  // Determines if point x,y are in square x1-x2,y1-y2
+  boolean in(float x1, float y1, float x2, float y2, float x, float y) {
+    return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+  }
+  // Determines if point x or y is on line x2x1 or y2y1 respectively
+  boolean in(float first, float second, float point) {
+    return point >= first && point <= second;
+  }
+  
   void transferObjIntoChildNodes(QTNode node) {
     GridObject obj = node.datum;
     for (int i = 0; i < node.children.length; ++i) {
@@ -149,7 +191,7 @@ class QuadTree {
 
 // globals
 ArrayList<GridObject> objs;
-int initCount = 300;//1000;
+int initCount = 10;//1000;
 
 // Add an object on mouse click
 void mouseClicked() {
