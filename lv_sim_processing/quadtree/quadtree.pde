@@ -88,6 +88,18 @@ class QTNode {
     rect(minX, minY, maxX-minX, maxY-minY);
   }
   
+  void placeObjectsInChildren(ArrayList<GridObject> objects) {
+    for (int i = 0; i < objects.size(); ++i) {
+      GridObject obj = objects[i];
+      for (int j = 0; j < children.length; ++i) {
+        QTNode childNode = children[i];
+        if (in(childNode, obj)) {
+          if (childNode.objects == null) childNode.objects = new ArrayList<GridObject>();
+          childNode.objects.add(obj);
+        }
+      }
+    }
+  }
     
   void placePointInChildren(Point point) {
     for (int i = 0; i < children.length; ++i) {
@@ -128,14 +140,17 @@ class QuadTree {
 
   // returns first grid object with corresponding x and y position
   GridObject search(float x, float y) {
-    QTNode node = head;
-    while (node != null) {
+    return search(head, x, y);
+  }
+  GridObject search(QTNode node, float x, float y) { 
       if (!in(node, x, y)) {
-        continue;
+        return null;
       }
       if (node.children != null) {
-        node = node.children[0];
-        continue;
+        for (int i = 0; i < node.children.length; ++i) {
+          GridObject obj = search(node.children[i], x, y);
+          if (obj != null) return obj;
+        }
       }
       if (node.point != null && node.objects != null && node.point.x == x && node.point.y == y) {
         for (int i = 0; i < node.objects.size(); ++i) {
@@ -143,8 +158,6 @@ class QuadTree {
           if (obj.x == x && obj.y == y) return obj;
         }
       }
-      break;
-    }
     return null;
   }
   
@@ -168,6 +181,9 @@ class QuadTree {
         node.createChildren();
         node.placePointInChildren(node.point);
         node.point = null;
+        node.placeObjectsInChildren(node.objects);
+        node.objects = null;
+
         insert(node.children, obj);
         return;
       }
@@ -176,10 +192,6 @@ class QuadTree {
     node.objects.add(obj);
     node.point = new Point(obj.x, obj.y);
   }
-  
-  
-
-
   
   // Draw all the nodes/blocks in the tree
   void display() {
@@ -249,13 +261,15 @@ void draw() {
     // Insert object into quad tree
     qt.insert(obj);
   }
+  
   // Choose a random object every 300 frames, and find it using search method and color it (just a demo)
   if (frameCount % 300 == 0 && objs.size() > 0) {
     GridObject obj = objs.get((int)(Math.random() * objs.size()));
     GridObject found = qt.search(obj.x, obj.y);
     println("We " + ((found == obj) ? "have " : "have not ") + "found the object");
-    found.c = color(255, 0, 0);
+    if (found != null) found.c = color(255, 0, 0);
   }
+  
 
   // Draw quadtree blocks
   qt.display();
