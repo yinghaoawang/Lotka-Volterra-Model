@@ -22,3 +22,9 @@ Lotka-Volterra simulation made with Procession 3.0:
 Located in the lv-sim/ folder.
 Prey and predator simulation where predator eats prey, etc. Generates data and chart
 which enforces the Lotka Volterra model.
+
+Quadtree:
+When prey population spikes to extreme amounts, the lag overwhelms the simulation. This is
+solved by utilizing a Quadtree which reduces the amount of collision checks on each creature.
+
+![](https://i.imgur.com/O09sw3X.png)

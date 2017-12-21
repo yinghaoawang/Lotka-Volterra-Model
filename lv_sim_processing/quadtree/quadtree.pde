@@ -251,6 +251,9 @@ float mbWidth = 50;
 float mbHeight = 50;
 
 boolean randomMotion = true;
+boolean displayFPS = true;
+boolean displayQT = true;
+boolean displayObjects = true;
 
 // Add an object on mouse click
 void mouseClicked() {
@@ -308,10 +311,14 @@ void draw() {
   background(230);
   // Create a quad tree every frame because objects are dynamic
   QuadTree qt = new QuadTree(width, height);
+  
 
+
+  /*
   rectMode(CENTER);
   fill(80, 200, 80);
   rect(mouseX, mouseY, mbWidth, mbHeight);
+  */
 
   // Handle each object
   for (int i = 0; i < objs.size(); ++i) {
@@ -330,12 +337,31 @@ void draw() {
     if (obj.y < 0) obj.y += height;
 
     // Draw object
-    obj.display();
+    if (displayObjects) obj.display();
 
     // Insert object into quad tree
     qt.insert(obj);
   }
-
+  
+  // Make every object have original color
+  for (int i = 0; i < objs.size(); ++i) objs.get(i).c = color(80, 80, 80);
+  
+  for (int i = 0; i < objs.size(); ++i) {
+    GridObject obj = objs.get(i);
+    pcObjs = qt.getPossibleCollisions(obj.x-obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2);
+    for (int j = 0; j < pcObjs.size(); ++j) {
+      GridObject collObj = pcObjs.get(j);
+      if (obj == collObj) continue;
+      if (eitherIn(obj.x-obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2, collObj.x-collObj.w/2, collObj.x+collObj.w/2, collObj.y-collObj.h/2, collObj.y+collObj.h/2)) {
+        obj.c = color(200, 80, 80);
+        collObj.c = color(200, 80, 80);
+      } else {
+        if (collObj.c == color(80, 80, 80)) collObj.c = color(80, 80, 200);
+      }
+    }
+  }
+  
+  /*
   for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 80);
   pcObjs = qt.getPossibleCollisions(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2);
   for (int i = 0; i < pcObjs.size(); ++i) {
@@ -346,13 +372,16 @@ void draw() {
       obj.c = color(80, 80, 200);
     }
   }
+  */
 
   // Draw quadtree blocks
-  qt.display();
+  if (displayQT) qt.display();
 
   // Draw fps
-  fill(0);
-  text((int)frameRate, 10, 20);
+  if (displayFPS) {
+    fill(0);
+    text((int)frameRate, 10, 20);
+  }
   
   /*
   // Choose a random object every 300 frames, and find it using search method and color it (just a demo)
