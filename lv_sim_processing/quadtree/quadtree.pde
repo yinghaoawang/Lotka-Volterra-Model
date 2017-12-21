@@ -1,26 +1,31 @@
 // Determines if a rectangular object is in another rectangular object
 boolean in(GridObject obj1, GridObject obj2) {
-  return (in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x - obj2.w/2) || in(obj1.x - obj1.w/2, obj1.x + obj1.w/2, obj2.x + obj2.w/2)) &&
-         (in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y - obj2.h/2) || in(obj1.y - obj1.h/2, obj1.y + obj1.h/2, obj2.y + obj2.h/2));
+  return in(obj1.x-obj1.w/2, obj1.x+obj1.w/2, obj1.y-obj1.h/2, obj1.y+obj1.h/2,
+            obj2.x-obj2.w/2, obj2.x+obj2.w/2, obj2.y+obj2.h/2, obj2.y+obj2.h/2);
 }
-// Determines if a rectangular object is in a node/block
+boolean in(QTNode node, float x1, float x2, float y1, float y2) {
+  return in(node.minX, node.maxX, node.minY, node.maxY, x1, x2, y1, y2);
+}
+boolean in(float Ax1, float Ax2, float Ay1, float Ay2, float Bx1, float Bx2, float By1, float By2) {
+  return (in(Ax1, Ax2, Bx1) || in(Ax1, Ax2, Bx2)) &&
+         (in(Ay1, Ay2, By1) || in(Ay1, Ay2, By2));
+}
 boolean in(QTNode node, GridObject obj) {
-  return (in(node.minX, node.maxX, obj.x - obj.w/2) || in(node.minX, node.maxX, obj.x + obj.w/2)) &&
-         (in(node.minY, node.maxY, obj.y - obj.h/2) || in(node.minY, node.maxY, obj.y + obj.h/2));
+  return in(node, obj.x - obj.w/2, obj.x + obj.w/2, obj.y - obj.h/2, obj.y + obj.h/2);
 }
-// Determines if a point is in bounds of the node/block
+
+// Determines if a point is in a rectangular object
 boolean in(QTNode node, float x, float y) {
-  return in(node.minX, node.minY, node.maxX, node.maxY, x, y);
+  return in(node.minX, node.maxX, node.minY, node.maxY, x, y);
 }
-// Determines if a point is in bounds of a rectangular grid object
 boolean in(GridObject obj, float x, float y) {
-  return in(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, x, y);
+  return in(obj.x - obj.w/2, obj.x + obj.w/2, obj.y - obj.h/2, obj.y + obj.h/2, x, y);
 }
-// Determines if point x,y are in square x1-x2,y1-y2
-boolean in(float x1, float y1, float x2, float y2, float x, float y) {
+boolean in(float x1, float x2, float y1, float y2, float x, float y) {
   return x >= x1 && x <= x2 && y >= y1 && y <= y2;
 }
-// Determines if point x or y is on line x2x1 or y2y1 respectively
+
+// Determines if a point is on a line (can be x or y)
 boolean in(float first, float second, float point) {
   return point >= first && point <= second;
 }
@@ -50,6 +55,7 @@ class GridObject {
   }
 }
 
+// Stores x y coords
 class Point {
   float x, y;
   Point(float x, float y) {
@@ -88,11 +94,13 @@ class QTNode {
     rect(minX, minY, maxX-minX, maxY-minY);
   }
   
+  // Move objects into a node's children where they fit
   void placeObjectsInChildren(ArrayList<GridObject> objects) {
+    if (objects == null) return;
     for (int i = 0; i < objects.size(); ++i) {
-      GridObject obj = objects[i];
-      for (int j = 0; j < children.length; ++i) {
-        QTNode childNode = children[i];
+      GridObject obj = objects.get(i);
+      for (int j = 0; j < children.length; ++j) {
+        QTNode childNode = children[j];
         if (in(childNode, obj)) {
           if (childNode.objects == null) childNode.objects = new ArrayList<GridObject>();
           childNode.objects.add(obj);
@@ -101,6 +109,7 @@ class QTNode {
     }
   }
     
+  // Moves a point into a node's children where it fits
   void placePointInChildren(Point point) {
     for (int i = 0; i < children.length; ++i) {
       QTNode childNode = children[i];
@@ -123,22 +132,20 @@ class QTNode {
   }
   
   String toString() {
-    // Draws the block the node represents
     return this.minX + ", " + this.maxX + ' ' + this.minY + ", " + this.maxY;
   }
 }
 
+// Quad Tree datastructure
 class QuadTree {
   QTNode head;
-  int maxDepth;
   float epsilon;
   QuadTree(float x, float y) {
     head = new QTNode(x, y);
-    maxDepth = 5;
-    epsilon = 0;
+    epsilon = 0; // When to stop dividing
   }
 
-  // returns first grid object with corresponding x and y position
+  // returns first grid object with corresponding x and y coords
   GridObject search(float x, float y) {
     return search(head, x, y);
   }
@@ -161,7 +168,26 @@ class QuadTree {
     return null;
   }
   
-  // Insert a point into 
+  ArrayList<GridObject> getPossibleCollisions(float x1, float x2, float y1, float y2) {
+    ArrayList<GridObject> result = new ArrayList<GridObject>();
+    ArrayList<QTNode> queue = new ArrayList<QTNode>();
+    queue.add(head);
+    while(queue.size() > 0) {
+      QTNode node = queue.remove(0);
+      if (!in(node, x1, x2, y1, y2)) continue;
+      if (node.children != null) {
+        for (int i = 0; i < node.children.length; ++i) queue.add(node.children[i]);
+        continue;
+      }
+      if (node.objects == null) continue;
+      for (int i = 0; i < node.objects.size(); ++i) {
+        result.add(node.objects.get(i));
+      }
+    }
+    return result;
+  }
+  
+  // Insert a point into tree, adds object into every block that it touches
   void insert(GridObject obj) {
     insert(head, obj);
   }
@@ -208,7 +234,11 @@ class QuadTree {
 
 // globals
 ArrayList<GridObject> objs;
+ArrayList<GridObject> pcObjs; // possibly colliding objects
 int initCount = 10;//1000;
+// Size of mouse box
+float mbWidth = 50;
+float mbHeight = 50;
 
 // Add an object on mouse click
 void mouseClicked() {
@@ -219,6 +249,7 @@ void mouseClicked() {
 void setup() {
   size(1000, 1000); 
   objs = new ArrayList<GridObject>();
+  pcObjs = new ArrayList<GridObject>();
   
   // create initial random objects
   for (int i = 0 ; i < initCount; ++i) {
@@ -245,8 +276,10 @@ void draw() {
       obj.yVel = (float)Math.random() * 5;
       if (Math.random() < .5) obj.xVel *= -1;
       if (Math.random() < .5) obj.yVel *= -1;
-      println((int)frameRate);
+      
     }
+    fill(0);
+    text((int)frameRate, 10, 20);
     // Move objects
     obj.x += obj.xVel;
     obj.y += obj.yVel;
@@ -258,10 +291,20 @@ void draw() {
     
     // Draw object
     obj.display();
+    
+
+
+    
     // Insert object into quad tree
     qt.insert(obj);
   }
+  fill(80, 200, 80);
+  rect(mouseX, mouseY, mbWidth, mbHeight);
+  for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 80);
+  pcObjs = qt.getPossibleCollisions(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2);
+  for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 200);
   
+  /*
   // Choose a random object every 300 frames, and find it using search method and color it (just a demo)
   if (frameCount % 300 == 0 && objs.size() > 0) {
     GridObject obj = objs.get((int)(Math.random() * objs.size()));
@@ -269,6 +312,7 @@ void draw() {
     println("We " + ((found == obj) ? "have " : "have not ") + "found the object");
     if (found != null) found.c = color(255, 0, 0);
   }
+  */
   
 
   // Draw quadtree blocks
