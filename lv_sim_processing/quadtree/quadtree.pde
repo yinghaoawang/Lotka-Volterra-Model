@@ -37,23 +37,7 @@ boolean in(float first, float second, float point) {
 
 // Determines if a rectangle is in a rectangle and vice versa
 boolean eitherIn(float Ax1, float Ax2, float Ay1, float Ay2, float Bx1, float Bx2, float By1, float By2) {
-  float AArea = (Ax2-Ax1) * (Ay2-Ay1);
-  float BArea = (Bx2-Bx1) * (By2-By1);
-  if (AArea < BArea) {
-    float tmpX1 = Ax1;
-    float tmpX2 = Ax2;
-    float tmpY1 = Ay1;
-    float tmpY2 = Ay2;
-    Bx1 = Ax1;
-    Bx2 = Ax2;
-    By1 = Ay1;
-    By2 = Ay2;
-    Ax1 = tmpX1;
-    Ax2 = tmpX2;
-    Ay1 = tmpY1;
-    Ay2 = tmpY2;
-  }
-  return in(Ax1, Ax2, Ay1, Ay2, Bx1, Bx2, By1, By2);
+  return in(Ax1, Ax2, Ay1, Ay2, Bx1, Bx2, By1, By2) || in(Bx1, Bx2, By1, By2, Ax1, Ax2, Ay1, Ay2);
 }
 
 // Object stored in the Quad Tree
@@ -261,7 +245,7 @@ class QuadTree {
 // globals
 ArrayList<GridObject> objs;
 ArrayList<GridObject> pcObjs; // possibly colliding objects
-int initCount = 100;//1000;
+int initCount = 1000;
 // Size of mouse box
 float mbWidth = 50;
 float mbHeight = 50;
@@ -289,12 +273,13 @@ void mouseClicked() {
   }
 }
 
+// Make object stop moving
 void setObjectNoMotion(GridObject obj) {
   obj.xVel = 0;
   obj.yVel = 0;
 }
 
-
+// Make object move randomly
 void setObjectRandomMotion(GridObject obj) {
   obj.xVel = (float)Math.random() * 5;
   obj.yVel = (float)Math.random() * 5;
@@ -354,13 +339,21 @@ void draw() {
   for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 80);
   pcObjs = qt.getPossibleCollisions(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2);
   for (int i = 0; i < pcObjs.size(); ++i) {
-    if (in(pcObjs.get(i), mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2)) {
-      pcObjs.get(i).c = color(200, 80, 80);
+    GridObject obj = pcObjs.get(i);
+    if (eitherIn(obj.x-obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2, mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2)) {
+      obj.c = color(200, 80, 80);
     } else {
-      pcObjs.get(i).c = color(80, 80, 200);
+      obj.c = color(80, 80, 200);
     }
   }
 
+  // Draw quadtree blocks
+  qt.display();
+
+  // Draw fps
+  fill(0);
+  text((int)frameRate, 10, 20);
+  
   /*
   // Choose a random object every 300 frames, and find it using search method and color it (just a demo)
    if (frameCount % 300 == 0 && objs.size() > 0) {
@@ -369,13 +362,5 @@ void draw() {
    println("We " + ((found == obj) ? "have " : "have not ") + "found the object");
    if (found != null) found.c = color(255, 0, 0);
    }
-   */
-
-
-  // Draw quadtree blocks
-  qt.display();
-
-  // Draw fps
-  fill(0);
-  text((int)frameRate, 10, 20);
+  */
 }
