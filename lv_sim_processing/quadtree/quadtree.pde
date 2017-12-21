@@ -6,6 +6,9 @@ boolean in(GridObject obj1, GridObject obj2) {
 boolean in(QTNode node, float x1, float x2, float y1, float y2) {
   return in(node.minX, node.maxX, node.minY, node.maxY, x1, x2, y1, y2);
 }
+boolean in(GridObject obj, float x1, float x2, float y1, float y2) {
+  return in(obj.x - obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2, x1, x2, y1, y2);
+}
 boolean in(float Ax1, float Ax2, float Ay1, float Ay2, float Bx1, float Bx2, float By1, float By2) {
   return (in(Ax1, Ax2, Bx1) || in(Ax1, Ax2, Bx2)) &&
          (in(Ay1, Ay2, By1) || in(Ay1, Ay2, By2));
@@ -197,7 +200,7 @@ class QuadTree {
     }
   }
   void insert(QTNode node, GridObject obj) {
-    if (!in(node, obj.x, obj.y)) return;
+    if (!in(node, obj)) return;
     if (node.children != null) {
       insert(node.children, obj);
       return;
@@ -240,6 +243,8 @@ int initCount = 10;//1000;
 float mbWidth = 50;
 float mbHeight = 50;
 
+boolean randomMotion = false;
+
 // Add an object on mouse click
 void mouseClicked() {
   objs.add(new GridObject(mouseX, mouseY));
@@ -254,10 +259,13 @@ void setup() {
   // create initial random objects
   for (int i = 0 ; i < initCount; ++i) {
     GridObject obj = new GridObject((int)(Math.random() * width), (int)(Math.random() * height));
-    obj.xVel = (float)Math.random() * 5;
-    obj.yVel = (float)Math.random() * 5;
-    if (Math.random() < .5) obj.xVel *= -1;
-    if (Math.random() < .5) obj.yVel *= -1;
+    if (randomMotion) {
+      obj.xVel = (float)Math.random() * 5;
+      obj.yVel = (float)Math.random() * 5;
+      if (Math.random() < .5) obj.xVel *= -1;
+      if (Math.random() < .5) obj.yVel *= -1;
+    }
+
     objs.add(obj);
   }
 }
@@ -271,7 +279,7 @@ void draw() {
   for (int i = 0; i < objs.size(); ++i) {
     GridObject obj = objs.get(i);
     // Change direction every 30 frames
-    if (frameCount % 30 == 0) {
+    if (randomMotion && frameCount % 30 == 0) {
       obj.xVel = (float)Math.random() * 5;
       obj.yVel = (float)Math.random() * 5;
       if (Math.random() < .5) obj.xVel *= -1;
@@ -302,7 +310,13 @@ void draw() {
   rect(mouseX, mouseY, mbWidth, mbHeight);
   for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 80);
   pcObjs = qt.getPossibleCollisions(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2);
-  for (int i = 0; i < pcObjs.size(); ++i) pcObjs.get(i).c = color(80, 80, 200);
+  for (int i = 0; i < pcObjs.size(); ++i) {
+    if (in(pcObjs.get(i), mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2)) {
+      pcObjs.get(i).c = color(200, 80, 80);
+    } else {
+      pcObjs.get(i).c = color(80, 80, 200);
+    }
+  }
   
   /*
   // Choose a random object every 300 frames, and find it using search method and color it (just a demo)
