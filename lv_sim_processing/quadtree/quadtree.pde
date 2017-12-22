@@ -245,7 +245,7 @@ class QuadTree {
 // globals
 ArrayList<GridObject> objs;
 ArrayList<GridObject> pcObjs; // possibly colliding objects
-int initCount = 1000;
+int initCount = 500;
 // Size of mouse box
 float mbWidth = 50;
 float mbHeight = 50;
@@ -311,8 +311,6 @@ void draw() {
   background(230);
   // Create a quad tree every frame because objects are dynamic
   QuadTree qt = new QuadTree(width, height);
-  
-
 
   /*
   rectMode(CENTER);
@@ -346,6 +344,7 @@ void draw() {
   // Make every object have original color
   for (int i = 0; i < objs.size(); ++i) objs.get(i).c = color(80, 80, 80);
   
+  // Collision detection and coloring
   for (int i = 0; i < objs.size(); ++i) {
     GridObject obj = objs.get(i);
     pcObjs = qt.getPossibleCollisions(obj.x-obj.w/2, obj.x+obj.w/2, obj.y-obj.h/2, obj.y+obj.h/2);

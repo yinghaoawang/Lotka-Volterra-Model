@@ -9,14 +9,14 @@ int maxPredator;
 int x0 = 1800;
 int y0 = 600;
 float a = .25; // % chance for a prey to reproduce per deltaT
-float b = .5; // % chance for predator to kill prey on contact per delta%
-float c = .15; // % chance for a predator to die per deltaT
-float d = .1; // % chance on predator to reproduce on prey killed (when b triggered)
+float b = 1;//.5; // % chance for predator to kill prey on contact per delta%
+float c = .1; // % chance for a predator to die per deltaT
+float d = .2; // % chance on predator to reproduce on prey killed (when b triggered)
 float dirChangeT = 30; // how often predator/prey change directions (higher = longer)
-float predatorRadius = 3; // size of predator (only a visual)
-float preyRadius = 3; // size of prey (larger is like larger b)
+float predatorRadius = 15; // size of predator (only a visual)
+float preyRadius = 15; // size of prey (larger is like larger b)
 float huntRadius = predatorRadius; // size of predator can hunt prey (larger is like larger b)
-float deltaT = 30; // how many frames does it take for 1 set of lv calculations
+float deltaT = 30; // how many framkjes does it take for 1 set of lv calculations
 float predatorDeath = deltaT * 999999999; // predator lifespan. infinite = disabled
 
 // toggle these as needed
@@ -80,9 +80,7 @@ class Button {
 boolean checkCollision(float x1, float y1, float x2, float y2, float r1, float r2) {
   float dx = x2 - x1;
   float dy = y2 - y1;
-  float distance = sqrt(dx * dx + dy * dy);
-  if (distance < r1 + r2) return true;
-  return false;
+  return dx * dx + dy * dy < r1 * r2;
 }
 // checks collision of predator and prey
 boolean checkCollision(Predator predator, Prey prey) {
@@ -180,7 +178,7 @@ void draw() {
     for (int j = 0; j < preys.size(); ++j) {
       Prey prey = preys.get(j);
       // if in vicinity of prey and rolls eat
-      if (checkCollision(predator, prey) && random(0, 1) < b) {
+      if (checkCollision(predator, prey) && (random(0, 1) < b)) {
         preys.remove(j);
         --j;
         // chance to birth

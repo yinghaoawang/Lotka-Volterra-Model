@@ -1,6 +1,7 @@
 # Lotka Volterra
 index.html:
 Models LK using chart.js. Using this for intro to game theory class.
+![](https://i.imgur.com/eRuyUSx.png)
 
 Variables a-f are alpha-zeta in alphabetical order.
 Delta t recommended to be at most .0001.
@@ -18,10 +19,19 @@ Note this is to implement a second harvest rate to deal with the shocks.
 reader.html:
 Takes in 2 data sets, and graphs it (used for data from processing sim)
 
+![](https://i.imgur.com/h3lkb9C.png)
+
 Lotka-Volterra simulation made with Procession 3.0:
 Located in the lv-sim/ folder.
 Prey and predator simulation where predator eats prey, etc. Generates data and chart
 which enforces the Lotka Volterra model.
+How it works-
+Predator and prey move in random directions at random speeds.
+If predator touches prey, it has b chance of killing it.
+If Predator kills a prey, it has d chance of reproducing.
+Prey reproduces with a chance and predator dies with c chance every deltaT.
+
+![](https://i.imgur.com/1POveXP.png)
 
 Quadtree:
 When prey population spikes to extreme amounts, the lag overwhelms the simulation. This is
