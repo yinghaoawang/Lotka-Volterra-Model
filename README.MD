@@ -50,3 +50,9 @@ When prey population spikes to extreme amounts, the lag overwhelms the simulatio
 solved by utilizing a Quadtree which reduces the amount of collision checks on each creature.
 
 ![](https://i.imgur.com/O09sw3X.png)
+
+#### Effect on simulation
+In processing, when not using a quadtree, the fps dropped as low as **2 fps** (max is 60 fps). After using the quadtree
+and keeping all other factors equal, the largest frame drop was at **48 fps** and remained at 60 fps after stabilization.
+This is a tremendous increase in processing power from changing the collision detection algorithm. If a quadtree is this
+powerful, a spatial hashing algorithm seems undoubtedly able to handle unrealistic numbers of object collisions.
