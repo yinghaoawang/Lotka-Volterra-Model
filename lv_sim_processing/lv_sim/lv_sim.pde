@@ -14,11 +14,12 @@ float c = .1; // % chance for a predator to die per deltaT
 float d = .2; // % chance on predator to reproduce on prey killed (when b triggered)
 float dirChangeT = 30; // how often predator/prey change directions (higher = longer)
 float deltaT = 30; // how many framkjes does it take for 1 set of lv calculations
+boolean activeManagement = false; // change predator decay rate when it is greater than deer
 
 float predatorSize = 3; // size of predator (only a visual)
 float preySize = 3; // size of prey (larger is like larger b)
-boolean randomSize = false; // if on, then random size of .2 * size to size
-boolean useSquares = false;
+boolean randomSize = true; // if on, then random size of .2 * size to size
+boolean useSquares = true;
 
 // toggle these as needed
 boolean isVisual = true; // sim visuals
@@ -183,7 +184,7 @@ void draw() {
     predator.step();
     //decay
     if (frameCount % deltaT == 0) {
-      if (predators.size() > preys.size()) {
+      if (predators.size() > preys.size() && activeManagement) {
         if (random(0, 1) < c+.2) {// active management
           predators.remove(i);
           --i;
