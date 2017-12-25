@@ -81,37 +81,18 @@ class SpatialHash {
     float cellMinY = (float)Math.floor(minY/cellSize) * cellSize;
     float cellMaxX = (float)Math.floor(maxX/cellSize) * cellSize;
     float cellMaxY = (float)Math.floor(maxY/cellSize) * cellSize;
-    for (float i = cellMinX; i < cellMaxX; i += cellSize) {
-      for (float j = cellMinY; i < cellMaxY; j += cellSize) {
+    println(minX, minY, maxX, maxY, cellMinX, cellMinY, cellMaxX, cellMaxY);
+    for (float i = cellMinX; i <= cellMaxX; i += cellSize) {
+      for (float j = cellMinY; j <= cellMaxY; j += cellSize) {
+        println(minX, maxX, minY, maxY, i, i+cellSize, j, j+cellSize);
         if (eitherIn(minX, maxX, minY, maxY, i, i+cellSize, j, j+cellSize))
           insertToBucket(i+","+j, obj);
       }
     }
-    /*
-    float xCell = (float)Math.floor(x/cellSize) * cellSize;
-    float yCell = (float)Math.floor(y/cellSize) * cellSize;
-    boolean onXLine = x%cellSize == 0;
-    boolean onYLine = y%cellSize == 0;
-    String k = xCell + "," + yCell;
-    insertToBucket(k, obj);
-    if (onXLine && onYLine) {
-      k = (xCell - cellSize) + "," + (yCell - cellSize);
-      insertToBucket(k, obj);
-      k = (xCell - cellSize) + "," + (yCell);
-      insertToBucket(k, obj);
-      k = (xCell) + "," + (yCell - cellSize);
-      insertToBucket(k, obj);
-    } else if (onXLine) {
-      k = (xCell - cellSize) + "," + (yCell);
-      insertToBucket(k, obj);
-    } else if (onYLine) {
-      k = (xCell) + "," + (yCell - cellSize);
-      insertToBucket(k, obj);
-    }
-    */ 
   }
   
   void insertToBucket(String k, GridObject obj) {
+    println(k);
     ArrayList<GridObject> b = bucket.get(k);
     if (b == null) {
       bucket.put(k, new ArrayList<GridObject>());
@@ -119,10 +100,10 @@ class SpatialHash {
     }
     if (!b.contains(obj)) b.add(obj);
   }
-  .
+  
   void display() {
     stroke(0);
-    for (int i = 0; i <= width; i += cellSize) {
+    for (int i = 0; i < width; i += cellSize) {
       line(i, 0, i, height);
     }
     for (int i = 0; i < height; i += cellSize) {
@@ -130,14 +111,27 @@ class SpatialHash {
     }
     
   }
+  String toString() {
+    return bucket.toString();
+  }
 }
 
 
 boolean displaySH = true;
+int x0 = 20;
+ArrayList<GridObject> objs;
 SpatialHash sh;
 void setup() {
   size(1000, 1000);
+  objs = new ArrayList<GridObject>();
   sh = new SpatialHash(width/10);
+  //for (int i = 0; i < x0; ++i)
+  objs.add(new GridObject((float)Math.random() * width, (float)Math.random() * height, 100, 200));
+  for (GridObject obj : objs) {
+    sh.insert(obj);
+    obj.display();
+  }
+  println(sh);
 }
 
 void draw() {
