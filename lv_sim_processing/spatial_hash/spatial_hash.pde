@@ -108,10 +108,8 @@ class SpatialHash {
     float cellMaxX = (float)Math.floor(maxX/cellSize) * cellSize;
     float cellMinY = (float)Math.floor(minY/cellSize) * cellSize;
     float cellMaxY = (float)Math.floor(maxY/cellSize) * cellSize;
-    println(minX, minY, maxX, maxY, cellMinX, cellMinY, cellMaxX, cellMaxY);
     for (float i = cellMinX; i <= cellMaxX; i += cellSize) {
       for (float j = cellMinY; j <= cellMaxY; j += cellSize) {
-        println(minX, maxX, minY, maxY, i, i+cellSize, j, j+cellSize);
         if (eitherIn(minX, maxX, minY, maxY, i, i+cellSize, j, j+cellSize))
           insertToBucket(i+","+j, obj);
       }
@@ -119,7 +117,6 @@ class SpatialHash {
   }
   
   void insertToBucket(String k, GridObject obj) {
-    println(k);
     ArrayList<GridObject> b = bucket.get(k);
     if (b == null) {
       bucket.put(k, new ArrayList<GridObject>());
@@ -145,35 +142,71 @@ class SpatialHash {
 
 
 boolean displaySH = true;
-int x0 = 30;
+boolean displayFPS = true;
+boolean displayMouseBox = true;
+boolean displayObjects = true;
+
+int x0 = 500;
 ArrayList<GridObject> objs;
-float mbWidth = 30;
-float mbHeight = 30;
+float mbWidth = 2.5;
+float mbHeight = 2.5;
+float objSize = 20;
+float deltaT = 30;
 SpatialHash sh;
 void setup() {
   size(1000, 1000);
   objs = new ArrayList<GridObject>();
   sh = new SpatialHash(width/10);
-  for (int i = 0; i < x0; ++i)
-    objs.add(new GridObject((float)Math.random() * width, (float)Math.random() * height, 30, 30));
-  for (GridObject obj : objs) {
-    sh.insert(obj);
+  for (int i = 0; i < x0; ++i) {
+    GridObject o = new GridObject((float)Math.random() * width, (float)Math.random() * height, objSize, objSize);
+    stepObject(o);
+    objs.add(o);
   }
-  println(sh);
+  println(width/25, objSize*((float)width/(float)objs.size()));
 }
 
 void draw() {
-  background(255);
-  for (GridObject obj : objs) obj.c = color(80, 80, 80);
+  //sh = new SpatialHash(width/10);
+  sh = new SpatialHash(Math.max(width/25, objSize*((float)width/objs.size())));
+  
+  background(200);
+  for (GridObject obj : objs) {
+    obj.c = color(80, 80, 80);
+    stepObject(obj);
+    sh.insert(obj);
+  }
   ArrayList<GridObject> pcObjs = sh.getPossibleCollisions(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2);
   for (GridObject o : pcObjs) {
     o.c = color(20, 220, 180);
     if (eitherIn(mouseX - mbWidth/2, mouseX + mbWidth/2, mouseY - mbHeight/2, mouseY + mbHeight/2,o.x-o.w/2, o.x+o.w/2, o.y-o.h/2, o.y+o.h/2))
       o.c = color(180, 20, 20);
   }
-  for (GridObject obj : objs) obj.display();
-  rectMode(CENTER);
-  fill(20, 180, 20);
-  rect(mouseX, mouseY, mbWidth, mbHeight);
+  if (displayObjects)
+    for (GridObject obj : objs) obj.display();
+  if (displayMouseBox) {
+    rectMode(CENTER);
+    fill(20, 180, 20);
+    rect(mouseX, mouseY, mbWidth, mbHeight);
+  }
   if (displaySH) sh.display();
+  if (displayFPS) {
+    rectMode(CORNER);
+    fill(0);
+    text((int)frameRate, 10, 20);
+  }
+}
+
+void stepObject(GridObject obj) {
+  if (frameCount % deltaT == 0) {
+    obj.xVel = (float)Math.random() * 3 + 2;
+    obj.yVel = (float)Math.random() * 3 + 2;
+    if (Math.random() < .5) obj.xVel *= -1;
+    if (Math.random() < .5) obj.yVel *= -1;
+  }
+  obj.x += obj.xVel;
+  obj.y += obj.yVel;
+  if (obj.x > width) obj.x -= width;
+  if (obj.x < 0) obj.x += width;
+  if (obj.y > height) obj.y -= height;
+  if (obj.y < 0) obj.y += height;
 }
