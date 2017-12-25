@@ -52,7 +52,37 @@ solved by utilizing a Quadtree which reduces the amount of collision checks on e
 ![](https://i.imgur.com/O09sw3X.png)
 
 #### Effect on simulation
-In processing, when not using a quadtree, the fps dropped as low as **2 fps** (max is 60 fps). After using the quadtree
-and keeping all other factors equal, the largest frame drop was at **48 fps** and remained at 60 fps after stabilization.
-This is a tremendous increase in processing power from changing the collision detection algorithm. If a quadtree is this
-powerful, a spatial hashing algorithm seems undoubtedly able to handle unrealistic numbers of object collisions.
+In processing, when not using a quadtree, the fps dropped as low as **6 fps** (max is 60 fps)
+when there were 5000 prey and 1000 predator.
+After using the quadtree and keeping all other factors equal, the largest frame drop was at **48 fps**
+and remained at 60 fps when not at extreme creature values.
+
+This is a tremendous increase in processing power from changing the collision detection algorithm.
+If a quadtree is this powerful, a spatial hashing algorithm seems undoubtedly able to handle unrealistic
+numbers of object collisions.
+
+### spatial_hash.pde
+Spatial Hash:
+A common second option in collision detection algorithms. This one is much easier to implement, and
+is more popular according to blogs and stack overflow.
+
+![](https://i.imgur.com/1nCeY99.png)
+
+#### Effect on simulation
+Using the same variables in the brute force and quadtree tests, and using a cell size of (width/height)/2/40,
+the spatial hash performed slightly worse than the quadtree. It averaged about **45 fps** compared to the
+**48 fps** of the quadtree. I expected spatial hashing to perform better due to the hype on the internet.
+
+### Conclusion on Collision Detection Methods
+Brute force is clearly a terrible option when dealing with any project expecting to have at least a decent
+amount of objects. There are pros and cons to both the quadtree and spatial hashing.
+
+The primary reason I would use the spatial hash is its simplicity. It took about 4 hours to understand,
+write, test, and incorporate into the main project. The quadtree took multiple days to do the same.
+
+The quadtree is more of a premium. It performs better, and requires less space in larger projects. I would
+use this in all cases where I believe collision detection is creating a bottleneck in performance. 
+
+Hopefully, I am able to find better algorithms and techniques to improve collision detections. Currently, I
+am only confident in using these algorithms with squares and circles, and on a 2d plane. It has been a great
+learning experience creating these data structures and putting them to use in a project I am working on.

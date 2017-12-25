@@ -16,8 +16,8 @@ float dirChangeT = 30; // how often predator/prey change directions (higher = lo
 float deltaT = 30; // how many framkjes does it take for 1 set of lv calculations
 boolean activeManagement = false; // change predator decay rate when it is greater than deer
 
-float predatorSize = 3; // size of predator (only a visual)
-float preySize = 3; // size of prey (larger is like larger b)
+float predatorSize = 5; // size of predator (only a visual)
+float preySize = 5; // size of prey (larger is like larger b)
 boolean randomSize = true; // if on, then random size of .2 * size to size
 boolean useSquares = true;
 
@@ -25,10 +25,16 @@ boolean useSquares = true;
 boolean isVisual = true; // sim visuals
 boolean isDrawChart = true; // line chart of x and y data
 boolean showFPS = true;
-boolean useQT = true;
+boolean showData = true;
+boolean useQT = false;
 boolean showQT = false;
+boolean useSH = true;
+boolean showSH = false;
 
-Button chartButton, visualButton, qtButton;
+// Chart button draws chart
+// Visual button draws simulation objects
+// DS button draws specified data structure visuals
+Button chartButton, visualButton, dsButton;
 int initCount = 500;
 float minFPS = 1000;
 
@@ -37,10 +43,10 @@ void setup() {
   frameRate(60);
   preyData.add(x0);
   predatorData.add(y0);
-  qtButton = new Button(width - 150, 10, 40, 10);
+  dsButton = new Button(width - 150, 10, 40, 10);
   chartButton = new Button(width - 100, 10, 40, 10);
   visualButton = new Button(width - 50, 10, 40, 10);
-  qtButton.setColor(color(0, 255, 255));
+  dsButton.setColor(color(0, 255, 255));
   chartButton.setColor(color(255, 255, 0));
   visualButton.setColor(color(255, 0, 255));
   // add initial prey and predator
@@ -55,8 +61,9 @@ void mouseReleased() {
   if (mouseOver(visualButton)) {
     isVisual = !isVisual;
   }
-  if (mouseOver(qtButton)) {
+  if (mouseOver(dsButton)) {
     showQT = !showQT;
+    showSH = !showSH;
   }
 }
 
@@ -87,14 +94,6 @@ class Button {
   }
 }
 
-/*
-// checks collision of 2 circular objects
-boolean checkCollision(float x1, float y1, float x2, float y2, float r1, float r2) {
-  float dx = x2 - x1;
-  float dy = y2 - y1;
-  return dx * dx + dy * dy < r1 * r2;
-}
-*/
 // checks collision of predator and prey
 boolean checkCollision(Predator predator, Prey prey) {
   return eitherIn(predator, prey);
@@ -156,7 +155,7 @@ void draw() {
   background(200);
   chartButton.display();
   visualButton.display();
-  qtButton.display();
+  dsButton.display();
   // draw chart if enabled
   if (isDrawChart) {
     drawChart(preyData, predatorData, maxPrey, maxPredator);
@@ -168,13 +167,18 @@ void draw() {
     println("predator: " + predatorData);
   }
 
-
-
-  QuadTree qt = new QuadTree(width, height);;
+  QuadTree qt = null;
+  SpatialHash sh = null;
+  
+  // init quadtree or spatial hash if specified
   if (useQT) {
     // Create a quad tree every frame because objects are dynamic
     //for (int i = 0; i < predators.size(); ++i) qt.insert(predators.get(i));
+    qt = new QuadTree(width, height);
     for (int i =  0; i < preys.size(); ++i) qt.insert(preys.get(i));
+  } else if (useSH) {
+    sh = new SpatialHash(((width+height)/2)/40);
+    for (Prey prey : preys) sh.insert(prey);
   }
   
   // predator actions
@@ -200,55 +204,32 @@ void draw() {
     // draw
     if (isVisual) predator.display();
     // check for prey to eat
-    if (useQT) {
-      // quad tree method
-      // Collision detection and coloring
-        ArrayList<GridObject> pcObjs = qt.getPossibleCollisions(predator);
-        for (int j = 0; j < pcObjs.size(); ++j) {
-          GridObject collObj = pcObjs.get(j);
-          if (collObj instanceof Predator) continue;
-          if (predator == collObj) continue;
-          if (checkCollision(predator, (Prey)collObj)) {
-            preys.remove(collObj);
-            // chance to birth
-            if (random(0, 1) < d) {
-              float w = predatorSize;
-              float h = predatorSize;
-              if (randomSize) {
-                w = random(predatorSize * .2, predatorSize);
-                h = random(predatorSize * .2, predatorSize);
-              }
-              if (useSquares) h = w;
-              Predator childPredator = addPredator(predator.xPos, predator.yPos, w, h);
-              childPredator.changeDirection();
-            }
-            /*
-            obj.c = color(200, 80, 80);
-            collObj.c = color(200, 80, 80);
-            */
+    ArrayList<GridObject> pcObjs = null;
+    if (useSH) { // spatial hash method
+      pcObjs = sh.getPossibleCollisions(predator);
+    } else if (useQT) {// quad tree method
+        pcObjs = qt.getPossibleCollisions(predator);
+    } else { // brute force method
+      pcObjs = new ArrayList<GridObject>();
+      for (Prey prey : preys) pcObjs.add(prey);
+    }
+    for (int j = 0; j < pcObjs.size(); ++j) {
+      GridObject collObj = pcObjs.get(j);
+      if (collObj instanceof Predator) continue;
+      if (predator == collObj) continue;
+      if (checkCollision(predator, (Prey)collObj)) {
+        preys.remove(collObj);
+        // chance to birth
+        if (random(0, 1) < d) {
+          float w = predatorSize;
+          float h = predatorSize;
+          if (randomSize) {
+            w = random(predatorSize * .2, predatorSize);
+            h = random(predatorSize * .2, predatorSize);
           }
-        }
-     
-    } else {
-      // brute force method
-      for (int j = 0; j < preys.size(); ++j) {
-        Prey prey = preys.get(j);
-        // if in vicinity of prey and rolls eat
-        if (checkCollision(predator, prey) && (random(0, 1) < b)) {
-          preys.remove(j);
-          --j;
-          // chance to birth
-          if (random(0, 1) < d) {
-            float w = predatorSize;
-              float h = predatorSize;
-              if (randomSize) {
-                w = random(predatorSize * .2, predatorSize);
-                h = random(predatorSize * .2, predatorSize);
-              }
-              if (useSquares) h = w;
-              Predator childPredator = addPredator(predator.xPos, predator.yPos, w, h);
-              childPredator.changeDirection();
-          }
+          if (useSquares) h = w;
+          Predator childPredator = addPredator(predator.xPos, predator.yPos, w, h);
+          childPredator.changeDirection();
         }
       }
     }
@@ -278,6 +259,8 @@ void draw() {
     predatorData.add(predators.size());
   }
   
+  if (useQT && showQT) qt.display();
+  if (useSH && showSH) sh.display();
   if (showFPS) {
     if (frameRate < minFPS && frameCount > 30) minFPS = frameRate;
     fill(0);
@@ -286,7 +269,13 @@ void draw() {
     else
       text((int)frameRate, 10, 20);
   }
-  if (useQT && showQT) qt.display();
+  if (showData) {
+    float yPos = 20;
+    if (showFPS) yPos += 15;
+    text("Prey: " + preys.size(), 10, yPos);
+    yPos += 15;
+    text("Predator: "+ predators.size(), 10, yPos);
+  }
 }
 
 Prey addPrey(float xPos, float yPos) {
@@ -665,5 +654,82 @@ class QuadTree {
         for (int j = 0; j < list.get(i).children.length; ++j) list.add(list.get(i).children[j]);
       }
     }
+  }
+}
+
+// Spatial Hash data structure
+class SpatialHash {
+  float cellSize;
+  HashMap<String, ArrayList<GridObject>> bucket;
+  SpatialHash(float cellSize) {
+    this.cellSize = cellSize;
+    bucket = new HashMap<String, ArrayList<GridObject>>();
+  }
+  ArrayList<GridObject> getPossibleCollisions(GridObject obj) {
+    ArrayList<GridObject> result = getPossibleCollisions(obj.xPos-obj.w/2, obj.xPos+obj.w/2, obj.yPos-obj.h/2, obj.yPos+obj.h/2);
+    for (GridObject o : result) {
+      if (o == obj) {
+        result.remove(o);
+        break;
+      }
+    }
+    return result;
+  }
+  ArrayList<GridObject> getPossibleCollisions(float x1, float x2, float y1, float y2) {
+    ArrayList<GridObject> result = new ArrayList<GridObject>();
+    float cellMinX = (float)Math.floor(x1/cellSize) * cellSize;
+    float cellMaxX = (float)Math.floor(x2/cellSize) * cellSize;
+    float cellMinY = (float)Math.floor(y1/cellSize) * cellSize;
+    float cellMaxY = (float)Math.floor(y2/cellSize) * cellSize;
+    for (float i = cellMinX; i <= cellMaxX; i += cellSize) {
+      for (float j = cellMinY; j <= cellMaxY; j += cellSize) {
+        ArrayList<GridObject> b = bucket.get(i + "," + j);
+        if (b == null) continue;
+        for (GridObject obj : b) {
+          if (!result.contains(obj)) result.add(obj);
+        }
+      }
+    }
+    return result;
+  }
+  void insert(GridObject obj) {
+    float minX = obj.xPos-obj.w/2;
+    float minY = obj.yPos-obj.h/2;
+    float maxX = obj.xPos+obj.w/2;
+    float maxY = obj.yPos+obj.h/2;
+    float cellMinX = (float)Math.floor(minX/cellSize) * cellSize;
+    float cellMaxX = (float)Math.floor(maxX/cellSize) * cellSize;
+    float cellMinY = (float)Math.floor(minY/cellSize) * cellSize;
+    float cellMaxY = (float)Math.floor(maxY/cellSize) * cellSize;
+    for (float i = cellMinX; i <= cellMaxX; i += cellSize) {
+      for (float j = cellMinY; j <= cellMaxY; j += cellSize) {
+        if (eitherIn(minX, maxX, minY, maxY, i, i+cellSize, j, j+cellSize))
+          insertToBucket(i+","+j, obj);
+      }
+    }
+  }
+  
+  void insertToBucket(String k, GridObject obj) {
+    ArrayList<GridObject> b = bucket.get(k);
+    if (b == null) {
+      bucket.put(k, new ArrayList<GridObject>());
+      b = bucket.get(k);
+    }
+    if (!b.contains(obj)) b.add(obj);
+  }
+  
+  void display() {
+    stroke(0);
+    strokeWeight(1);
+    for (int i = 0; i < width; i += cellSize) {
+      line(i, 0, i, height);
+    }
+    for (int i = 0; i < height; i += cellSize) {
+      line(0, i, width, i);
+    }
+    
+  }
+  String toString() {
+    return bucket.toString();
   }
 }

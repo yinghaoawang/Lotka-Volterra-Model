@@ -1,38 +1,3 @@
-
-// Object that belongs on a grid
-class GridObject {
-  float x, y, xVel, yVel;
-  float w, h;
-  color c;
-  GridObject(float x, float y) {
-    this(x, y, 10, 10);
-  }
-  GridObject(float x, float y, float w, float h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.xVel = 0;
-    this.yVel = 0;
-    this.c = color(80, 80, 80);
-  }
-  void display() {
-    rectMode(CENTER);
-    noStroke();
-    fill(c);
-    rect(x, y, w, h);
-  }
-}
-
-// Stores x y coords
-class Point {
-  float x, y;
-  Point(float x, float y) {
-    this.x = x;
-    this.y = y;
-  }
-}
-
 // Determines if a rectangular object is in another rectangular object
 boolean in(GridObject obj1, GridObject obj2) {
   return in(obj1.x-obj1.w/2, obj1.x+obj1.w/2, obj1.y-obj1.h/2, obj1.y+obj1.h/2, 
@@ -63,6 +28,31 @@ boolean in(float first, float second, float point) {
 // Determines if a rectangle is in a rectangle and vice versa
 boolean eitherIn(float Ax1, float Ax2, float Ay1, float Ay2, float Bx1, float Bx2, float By1, float By2) {
   return in(Ax1, Ax2, Ay1, Ay2, Bx1, Bx2, By1, By2) || in(Bx1, Bx2, By1, By2, Ax1, Ax2, Ay1, Ay2);
+}
+
+// Object that belongs on a grid
+class GridObject {
+  float x, y, xVel, yVel;
+  float w, h;
+  color c;
+  GridObject(float x, float y) {
+    this(x, y, 10, 10);
+  }
+  GridObject(float x, float y, float w, float h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.xVel = 0;
+    this.yVel = 0;
+    this.c = color(80, 80, 80);
+  }
+  void display() {
+    rectMode(CENTER);
+    noStroke();
+    fill(c);
+    rect(x, y, w, h);
+  }
 }
 
 class SpatialHash {
@@ -140,7 +130,23 @@ class SpatialHash {
   }
 }
 
+void stepObject(GridObject obj) {
+  if (frameCount % deltaT == 0) {
+    obj.xVel = (float)Math.random() * 3 + 2;
+    obj.yVel = (float)Math.random() * 3 + 2;
+    if (Math.random() < .5) obj.xVel *= -1;
+    if (Math.random() < .5) obj.yVel *= -1;
+  }
+  obj.x += obj.xVel;
+  obj.y += obj.yVel;
+  if (obj.x > width) obj.x -= width;
+  if (obj.x < 0) obj.x += width;
+  if (obj.y > height) obj.y -= height;
+  if (obj.y < 0) obj.y += height;
+}
 
+
+/* RUNNER -------------- */
 boolean displaySH = true;
 boolean displayFPS = true;
 boolean displayMouseBox = true;
@@ -148,8 +154,8 @@ boolean displayObjects = true;
 
 int x0 = 500;
 ArrayList<GridObject> objs;
-float mbWidth = 2.5;
-float mbHeight = 2.5;
+float mbWidth = 10;
+float mbHeight = 10;
 float objSize = 20;
 float deltaT = 30;
 SpatialHash sh;
@@ -194,19 +200,4 @@ void draw() {
     fill(0);
     text((int)frameRate, 10, 20);
   }
-}
-
-void stepObject(GridObject obj) {
-  if (frameCount % deltaT == 0) {
-    obj.xVel = (float)Math.random() * 3 + 2;
-    obj.yVel = (float)Math.random() * 3 + 2;
-    if (Math.random() < .5) obj.xVel *= -1;
-    if (Math.random() < .5) obj.yVel *= -1;
-  }
-  obj.x += obj.xVel;
-  obj.y += obj.yVel;
-  if (obj.x > width) obj.x -= width;
-  if (obj.x < 0) obj.x += width;
-  if (obj.y > height) obj.y -= height;
-  if (obj.y < 0) obj.y += height;
 }
