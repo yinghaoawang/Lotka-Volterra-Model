@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <title>LV</title>
-        <script src='Chart.min.js'></script>
-        <script src='jquery-3.2.1.min.js'></script>
-        <link rel='stylesheet' type='text/css' href='bootstrap-3.3.7-dist/css/bootstrap.min.css'>
+        <script src='js/Chart.min.js'></script>
+        <script src='js/jquery-3.2.1.min.js'></script>
+        <link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
     </head>
     <body>
         <div class='container'>
@@ -29,7 +29,7 @@
                         </div>
                         <label class='col-sm-2 control-label' for='tmax'>ending t</label>
                         <div class='col-sm-2'>
-                            <input type='text' class='form-control' id='tmax' value='2.5'></input>
+                            <input type='text' class='form-control' id='tmax' value='2'></input>
                         </div>
                     </div>
                     <div class='form-group'>
@@ -42,85 +42,91 @@
                             <input type='text' class='form-control' value='6' id='y0'></input>
                         </div>
                     </div>
-                    <div class='form-group'>
-                        <label class='col-sm-2 control-label' for='a'>prey growth(a)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='15' id='a'></input>
+                        <div class='form-group'>
+                            <label class='col-sm-2 control-label' for='a'>prey growth(a)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='15' id='a'></input>
+                            </div>
+                            <label class='col-sm-2 control-label' for='b'>prey-predator meet(b)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='1' id='b'></input>
+                            </div>
+                            <label class='col-sm-2 control-label' for='c'>predator decay (c)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='10' id='c'></input>
+                            </div>
                         </div>
-                        <label class='col-sm-2 control-label' for='b'>prey-predator meet(b)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='1' id='b'></input>
+                        <div class='form-group'>
+                            <label class='col-sm-2 control-label' for='d'>predator growth (d)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='.5' id='d'></input>
+                            </div>
+                            <label class='col-sm-2 control-label' for='e'>prey harvest (e)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='0' id='e'></input>
+                            </div>
+                            <label class='col-sm-2 control-label' for='f'>predator harvest (f)</label>
+                            <div class='col-sm-2'>
+                                <input type='text' class='form-control' value='0' id='f'></input>
+                            </div>
                         </div>
-                        <label class='col-sm-2 control-label' for='c'>predator decay (c)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='10' id='c'></input>
+                        <div class='form-group'>
+                            <div class='col-sm-12'>
+                                <button id='moreBtn' class='btn btn-link'>Show Advanced Options</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class='col-sm-2 control-label' for='d'>predator growth (d)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='.5' id='d'></input>
-                        </div>
-                        <label class='col-sm-2 control-label' for='e'>prey harvest (e)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='e'></input>
-                        </div>
-                        <label class='col-sm-2 control-label' for='f'>predator harvest (f)</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='f'></input>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class='col-sm-2 control-label' for='etime'>time to implement e</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='etime'></input>
-                        </div>
-                        <label class='col-sm-2 control-label' for='ftime'>time to implement f</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='ftime'></input>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class='col-sm-1 control-label' for='xt1'>ch x@t</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='xt1'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='xtv'>xch</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='xtv'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='yt1'>ch y@t</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='yt1'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='ytv'>ych</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='ytv'></input>
-                        </div>
-                    </div>
-                    <div class='form-group'>
-                        <label class='col-sm-1 control-label' for='etime2'>ch e@t</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='etime2'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='e2'>e2</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='e2'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='ftime2'>ch f@t</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='ftime2'></input>
-                        </div>
-                        <label class='col-sm-1 control-label' for='f2'>f2</label>
-                        <div class='col-sm-2'>
-                            <input type='text' class='form-control' value='0' id='f2'></input>
-                        </div>
+                            <div class='form-group moreDiv' style='display: none'>
+                                <label class='col-sm-2 control-label' for='etime'>time to implement e</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='etime'></input>
+                                </div>
+                                <label class='col-sm-2 control-label' for='ftime'>time to implement f</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='ftime'></input>
+                                </div>
+                            </div>
+                            <div class='form-group moreDiv' style='display: none'>
+                                <label class='col-sm-1 control-label' for='xt1'>ch x@t</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='xt1'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='xtv'>xch</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='xtv'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='yt1'>ch y@t</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='yt1'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='ytv'>ych</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='ytv'></input>
+                                </div>
+                            </div>
+                            <div class='form-group moreDiv' style='display: none'>
+                                <label class='col-sm-1 control-label' for='etime2'>ch e@t</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='etime2'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='e2'>e2</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='e2'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='ftime2'>ch f@t</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='ftime2'></input>
+                                </div>
+                                <label class='col-sm-1 control-label' for='f2'>f2</label>
+                                <div class='col-sm-2'>
+                                    <input type='text' class='form-control' value='0' id='f2'></input>
+                                </div>
+                            </div>
                     </div>
                 </div>
             </div>
             <div class='container-fluid'>
                 <div class='form-horizontal'>
-                    <div class='form-group'>
+                    <div class='form-group moreDiv' style='display: none'>
                         <label class='col-sm-2 control-label' for='ssx'>SSx</label>
                         <div class='col-sm-2'>
                             <input id='ssx' type='text' class='form-control' disabled='true'></input>
@@ -130,7 +136,7 @@
                             <input id='ssy' type='text' class='form-control' disabled='true'></input>
                         </div>
                     </div>
-                    <div class='form-group'>
+                    <div class='form-group moreDiv' style='display: none'>
                         <label class='col-sm-2 control-label' for='xt'>x at time</label>
                         <div class='col-sm-2'>
                             <input id='xt' type='text' class='sec form-control' value='1'></input>
@@ -143,7 +149,7 @@
                             <button id='findxy' class='btn btn-primary'>Find X and Y</button>
                         </div>
                     </div>
-                    <div class='form-group'>
+                    <div class='form-group moreDiv' style='display:none'>
                         <label class='col-sm-2 control-label' for='xat'>x value</label>
                         <div class='col-sm-2'>
                             <input id='xat' type='text' class='form-control' disabled='true'></input>
@@ -153,7 +159,7 @@
                             <input id='yat' type='text' class='form-control' disabled='true'></input>
                         </div>
                     </div>
-                    <div class='form-group'>
+                    <div class='form-group moreDiv' style='display:none'>
                         <label class='col-sm-2 control-label' for='esug'>suggested e</label>
                         <div class='col-sm-2'>
                             <input id='esug' type='text' class='form-control' disabled='true'></input>
@@ -167,10 +173,12 @@
             </div>
         </div>
         <div class='container'>
+            <a href='index.html'>Lotka-Volterra Graph</a>
+            <br/>
             <a href='reader.html'>Enter Your Own Data</a>
             <br/>
             <a href='lv-sim.html'>Lotka-Volterra Simulation</a>
         </div>
-        <script src='lv.js'></script>
+        <script src='js/lv.js'></script>
     </body>
 </html>

@@ -9,6 +9,7 @@ $(function() {
         if (chart) chart.destroy();
         updateGraph();
     });
+    updateGraph();
     function updateGraph() {
         var ctx = $('#myChart');
         var dt = parseFloat($('#dt').val());

@@ -4,24 +4,20 @@
         <meta charset="UTF-8">
         <meta http-equiv="X-UA-Compatible" content="chrome=1, IE=edge">
         <title>Lotka-Volterra Simulation</title>
-        <script src='Chart.min.js'></script>
-        <script src='jquery-3.2.1.min.js'></script>
-        <link rel='stylesheet' type='text/css' href='bootstrap-3.3.7-dist/css/bootstrap.min.css'>
+        <script src='js/Chart.min.js'></script>
+        <script src='js/jquery-3.2.1.min.js'></script>
+        <link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
     </head>
     <body>
         <div class='container'>
-            <canvas id='canvas' width='500' height='500'></canvas>
-        <div class='container'>
+            <canvas id='canvas' width='800' height='800'></canvas>
+        <div class='container-fluid'>
             <button class='btn btn-default' id='resetBtn'>Reset</button>
             <button class='btn btn-primary' id='resumeBtn'>Resume</button>
             <button class='btn btn-danger' id='pauseBtn'>Pause</button>
         </div>
-        <div class='container'>
-            <a href='index.html'>Lotka-Volterra Model</a>
-        </div>
-
         <!-- Sim runner script & sim script -->
-        <script src='lv-sim.js'></script>
+        <script src='js/lv-sim.js'></script>
         <script type='text/javascript'>
             var lvsim = new LVSim(document.getElementById('canvas'));
             var running = false;
@@ -50,5 +46,13 @@
                 }
             });
         </script>
+        <div class='container'>
+            <a href='index.html'>Lotka-Volterra Graph</a>
+            <br/>
+            <a href='reader.html'>Enter Your Own Data</a>
+            <br/>
+            <a href='lv-sim.html'>Lotka-Volterra Simulation</a>
+        </div>
+
     </body>
 </html>

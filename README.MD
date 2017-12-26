@@ -77,12 +77,12 @@ the spatial hash performed slightly worse than the quadtree. It averaged about *
 Brute force is clearly a terrible option when dealing with any project expecting to have at least a decent
 amount of objects. There are pros and cons to both the quadtree and spatial hashing.
 
-The primary reason I would use the spatial hash is its simplicity. It took about 4 hours to understand,
-write, test, and incorporate into the main project. The quadtree took multiple days to do the same.
+The spatial hash has a consistent space complexity and is easy to implement. The only problem is that the
+space may become expensive in a large map with small amount of objects. That is when I would use a quadtree.
 
-The quadtree is more of a premium. It performs better, and requires less space in larger projects. I would
-use this in all cases where I believe collision detection is creating a bottleneck in performance. 
+The quadtree performs similar to the spatial hash. It has variable spatial complexity, but is superior in
+large maps with sparse objects. Compared to a hash map, a tree also requires less overhead to read.
 
 Hopefully, I am able to find better algorithms and techniques to improve collision detections. Currently, I
-am only confident in using these algorithms with squares and circles, and on a 2d plane. It has been a great
+am only confident in using these algorithms with squares and circles on a 2d plane. It has been a great
 learning experience creating these data structures and putting them to use in a project I am working on.

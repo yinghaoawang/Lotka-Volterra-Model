@@ -3,6 +3,7 @@ $(function() {
     updateGraph();
     var chart;
     var a,b,c,d;
+    var showingMore = false;
     $('input').keypress(function(e) {
         if (e.which == 13) {
             $('#update').click();
@@ -22,6 +23,24 @@ $(function() {
     $('#findxy').click(function() {
         findXY();
     });
+    $('#moreBtn').click(function() {
+        showMore();
+    });
+
+    function showMore() {
+        if (showingMore) {
+            $(".moreDiv").each(function() {
+                $(this).attr('style', 'display: none');
+            });
+            $('#moreBtn').text("Show Advanced Options");
+        } else {
+            $(".moreDiv").each(function() {
+                $(this).attr('style', 'display: block');
+            });
+            $('#moreBtn').text("Hide Advanced Options");
+        }
+        showingMore = !showingMore;
+    }
 
     function findXY() {
         var xt = parseFloat($('#xt').val());
@@ -118,7 +137,7 @@ $(function() {
                             //labels: ["January", "February", "March", "April", "May", "June", "July"],
                             labels: tvals,
                             datasets: [{
-                                            label: "Deer",
+                                            label: "Prey",
                                             //backgroundColor: 'rgb(255, 99, 132)',
                                             fill: false,
                                             pointRadius: 0,
@@ -128,7 +147,7 @@ $(function() {
                                             data: xvals,
                                         },
                                         {
-                                            label: "Coyote",
+                                            label: "Predator",
                                             //backgroundColor: 'rgb(255, 99, 132)',
                                             fill: false,
                                             pointRadius: 0,

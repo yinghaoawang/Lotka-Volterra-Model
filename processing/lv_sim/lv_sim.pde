@@ -9,7 +9,7 @@ int maxPredator;
 int x0 = 300;
 int y0 = 100;
 float a = .25; // % chance for a prey to reproduce per deltaT
-float b = .5;//.5; // % chance for predator to kill prey on contact per delta%
+float b = 1;//.5; // % chance for predator to kill prey on contact per delta%
 float c = .1; // % chance for a predator to die per deltaT
 float d = .2; // % chance on predator to reproduce on prey killed (when b triggered)
 float dirChangeT = 30; // how often predator/prey change directions (higher = longer)
@@ -107,9 +107,7 @@ void drawChart(ArrayList<Integer> dataset1, ArrayList<Integer> dataset2, int max
   float endX = width - startX;
   float endY = height * 1/2;
   float deltaX = (endX - startX) / (dataset1.size() - 1);
-
   float maxY = Math.max(max1, max2);
-
 
   // draw chart background
   fill(240);
