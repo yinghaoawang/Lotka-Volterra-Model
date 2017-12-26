@@ -7,6 +7,7 @@ Models LK using chart.js. Using this for intro to game theory class.
 Variables a-f are alpha-zeta in alphabetical order.
 Delta t recommended to be at most .0001.
 
+#### Advanced Options
 Time to implement e,f are the times t where the model incorporates harvest rates e,f.
 
 ch(x,y)@t are times to manually change x,y at times t.
@@ -23,7 +24,13 @@ Takes in 2 data sets, and graphs it (used for data from processing sim)
 ![](https://i.imgur.com/h3lkb9C.png)
 
 ### lv-sim.html:
-Originally made with processing 3.0 (see below)
+Originally made with processing 3.0 (see below).
+Entirely object oriented.
+#### Differences
+- This implementation only uses a spatial hash
+    - Has visual representation
+- Has slight changes in the details of the creatures actions (ordering, infancy, etc.)
+- Can retrieve logged data to paste onto chart reader
 ![](https://i.imgur.com/1POveXP.png)
 
 ## Visuals with Processing 3.0

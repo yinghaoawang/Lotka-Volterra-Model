@@ -10,24 +10,43 @@
     </head>
     <body>
         <div class='container'>
-            <canvas id='canvas' width='1000' height='1000'></canvas>
+            <canvas id='canvas' width='800' height='500'></canvas>
+            <canvas id='gCanvas'></canvas>
         <div class='container-fluid'>
             <button class='btn btn-default' id='resetBtn'>Reset</button>
             <button class='btn btn-primary' id='resumeBtn'>Resume</button>
             <button class='btn btn-danger' id='pauseBtn'>Pause</button>
-            <button class='btn btn-info' id='shBtn'>Toggle Spatial Hash Grid</button>
+            <button class='btn btn-info' id='shBtn'>Toggle Hash Grid</button>
+            <button class='btn btn-warning' id='graphBtn'>Toggle Graph</button>
+        </div>
+        <div class="container">
+            <h4>Data</h4>
+            <textarea id="dataTxt">--Update Data--</textArea>
+            <div class="container-fluid">
+                <button class='btn btn-success' id='getDataBtn'>Update</button>
+            </div>
         </div>
         <!-- Sim runner script & sim script -->
         <script src='js/lv-sim.js'></script>
+        <script src='js/graph.js'></script>
         <script type='text/javascript'>
             var lvsim = new LVSim(document.getElementById('canvas'));
             var running = false;
             var intervalID;
+            var intervalID2;
+            $('#gCanvas').attr('width', lvsim.width);
+            $('#gCanvas').attr('height', lvsim.height/3);
+            var graph = new Graph(document.getElementById('gCanvas'));
 
             // initial run
             lvsim.init();
             intervalID = lvsim.run();
+            intervalID2 = setInterval(function() {
+                graph.setData(lvsim.getPairData());
+                graph.display();
+            }, 1000/60);
             running = true;
+            showGraph = true;
 
             // event listeners for buttons
             $('#resetBtn').click(function() {
@@ -48,6 +67,17 @@
             });
             $('#shBtn').click(function() {
                 lvsim.showSpatialHash = !lvsim.showSpatialHash;
+            });
+            $('#getDataBtn').click(function() {
+                $('#dataTxt').text(lvsim.getData());
+            });
+            $('#graphBtn').click(function() {
+                if (showGraph) {
+                    $('#gCanvas').attr('style', 'display: none;');
+                } else {
+                    $('#gCanvas').attr('style', 'display: block;');
+                }
+                showGraph = !showGraph;
             });
         </script>
         <div class='container'>

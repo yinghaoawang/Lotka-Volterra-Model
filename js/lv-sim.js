@@ -10,8 +10,8 @@ class LVSim {
         this.c = .1;
         this.d = .2;
         this.dirChangeT = 30;
-        this.predatorSize = 5;
-        this.preySize = 5;
+        this.predatorSize = 3;
+        this.preySize = 3;
         this.deltaT = 30;
         this.x0 = this.width/3;
         this.y0 = this.x0/3;
@@ -130,6 +130,25 @@ class LVSim {
     logData() {
         this.data[0].push(this.preys.length);
         this.data[1].push(this.predators.length);
+    }
+
+    getData() {
+        var data = "";
+        data += "prey: [";
+        for (var i = 0; i < this.data[0].length; ++i) {
+            data+=this.data[0][i];
+            if (i != this.data[0].length-1) data+= ",";
+        }
+        data += "]\npredator:[";
+        for (var i = 0; i < this.data[1].length; ++i) {
+            data+=this.data[1][i];
+            if (i != this.data[1].length-1) data+= ",";
+        }
+        data += "]";
+        return data;
+    }
+    getPairData() {
+        return this.data;
     }
     // draw preys and predators onto canvas
     draw() {
