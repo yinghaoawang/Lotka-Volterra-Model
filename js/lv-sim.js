@@ -13,8 +13,11 @@ class LVSim {
         this.predatorSize = 5;
         this.preySize = 5;
         this.deltaT = 30;
-        this.x0 = 180;
-        this.y0 = 60
+        this.x0 = 18;
+        this.y0 = 6 
+        this.useSpatialHash = true;
+        this.showSpatialHash = false;
+        this.sh = null;
     }
     init() {
         this.data = [[], []]
@@ -47,32 +50,7 @@ class LVSim {
     }
     // creature interactions every frame
     update() {
-        // move prey and predators
-        for (var i = 0; i < this.preys.length; ++i) {
-            var prey = this.preys[i];
-            prey.move()
-            this.keepInBounds(prey);
-        }
-        for (var i = 0; i < this.predators.length; ++i) {
-            var predator = this.predators[i];
-            predator.move()
-            this.keepInBounds(predator);
-            // predator hunt
-            for (var j = 0; j < this.preys.length; ++j) {
-                var prey = this.preys[j];
-                // if predator is touching prey
-                if (checkCollision(predator, prey) && (Math.random() < this.b)) {
-                    this.preys.splice(j, 1);
-                    --j;
-                    // chance for predator to birth if succesfully hunts
-                    if (Math.random() < this.d) {
-                        var predatorChild = new Predator(predator.xPos, predator.yPos, predator.width, predator.height);
-                        this.predators.push(predatorChild);
-                        //console.log('predator ' + i + ' hunted prey ' + j + ' and produced a child');
-                    }
-                }
-            }
-        }
+        if (this.useSpatialHash) this.sh = new SpatialHash(this.width/40);
 
         // change direction at given times
         if (this.frameCount % this.dirChangeT == 0) {
@@ -80,44 +58,76 @@ class LVSim {
             for (var i = 0; i < this.predators.length; ++i) this.predators[i].changeDirection();
         }
 
-        // actions for a step
-        if (this.frameCount % this.deltaT == 0) this.deltaTStep();
-    }
-    // actions every deltaT: reproduction, decay, hunting
-    deltaTStep() {
-        // predator acts second
-        for (var i = 0; i < this.predators.length; ++i) {
-            var predator = this.predators[i];
-            // prevents recently produced babies from decaying
-            if (predator.age < 1) {
-                ++predator.age;
-                continue;
-            }
-            // predator decay
-            if (Math.random() < this.c) {
-                this.predators.splice(i, 1);
-                --i;
-                continue;
-            }
-            ++predator.age;
-        }
-        // prey acts first
+        // prey actions
         for (var i = 0; i < this.preys.length; ++i) {
             var prey = this.preys[i];
-            // prevents recently produced babies from reproducing
+            /*
+            // recently birthed children cannot act
             if (prey.age < 1) {
                 ++prey.age;
                 continue;
             }
+            */
+            prey.move()
+            this.keepInBounds(prey);
             // prey reproduction
-            if (Math.random() < this.a) {
+            if (this.frameCount % this.deltaT == 0 && Math.random() < this.a) {
                 var preyChild = new Prey(prey.xPos, prey.yPos, prey.width, prey.height);
                 this.preys.push(preyChild);
             }
+
             ++prey.age;
         }
-        this.logData();
+
+        if (this.useSpatialHash) {
+            for (var i = 0; i < this.preys.length; ++i) this.sh.insert(this.preys[i]);
+        }
+
+        // Predator actions
+        for (var i = 0; i < this.predators.length; ++i) {
+            var predator = this.predators[i];
+            /*
+            // recently birthed children cannot act
+            if (predator.age < 1) {
+                ++predator.age;
+                continue;
+            }
+            */
+            // predator decay
+            if (this.frameCount % this.deltaT == 0 && Math.random() < this.c) {
+                this.predators.splice(i, 1);
+                --i;
+                continue;
+            }
+            // move predator
+            predator.move()
+            this.keepInBounds(predator);
+            // predator hunt
+            var possibleCollisions;
+            if (this.useSpatialHash) {
+                possibleCollisions = this.sh.getPossibleCollisions(predator.xPos-predator.width/2, predator.xPos+predator.width/2, predator.yPos-predator.height/2, predator.yPos+predator.height/2);
+            } else { // brute force algorithm
+                possibleCollisions = this.preys;
+            }
+            for (var j = 0; j < possibleCollisions.length; ++j) {
+                var prey = possibleCollisions[j];
+                // if predator is touching prey
+                if (checkCollision(predator, prey) && (Math.random() < this.b)) {
+                    var index = this.preys.indexOf(prey);
+                    this.preys.splice(index, 1);
+                    // chance for predator to birth if succesfully hunts
+                    if (Math.random() < this.d) {
+                        var predatorChild = new Predator(predator.xPos, predator.yPos, predator.width, predator.height);
+                        this.predators.push(predatorChild);
+                    }
+                }
+            }
+            ++predator.age;
+        }
+        if (this.frameCount % this.deltaT == 0) this.logData();
+
     }
+
     // stores the creature data into the data array
     logData() {
         this.data[0].push(this.preys.length);
@@ -134,6 +144,7 @@ class LVSim {
         for (var i = 0; i < this.predators.length; ++i) {
             this.predators[i].display(this.ctx);
         }
+        if (this.useSpatialHash && this.showSpatialHash && this.sh != null) this.sh.display(this.ctx, this.width, this.height);
     }
     // helpers
     newRandomPrey() {
@@ -237,6 +248,61 @@ class SpatialHash {
         this.buckets = {};
     }
     insert(creature) {
-        
+        var minX = creature.xPos - creature.width/2;
+        var maxX = creature.xPos + creature.width/2;
+        var minY = creature.yPos - creature.height/2;
+        var maxY = creature.yPos + creature.height/2;
+        var cellMinX = Math.floor(minX/this.cellSize)*this.cellSize;
+        var cellMaxX = Math.floor(maxX/this.cellSize)*this.cellSize;
+        var cellMinY = Math.floor(minY/this.cellSize)*this.cellSize;
+        var cellMaxY = Math.floor(maxY/this.cellSize)*this.cellSize;
+        for (var i = cellMinX; i <= cellMaxX; i+= this.cellSize) {
+            for (var j = cellMinY; j <= cellMaxY; j+= this.cellSize) {
+                if (eitherRectInRect(i, j, i+this.cellSize, j+this.cellSize, minX, maxX, minY, maxY))
+                    this.insertToBucket(i+","+j, creature);
+            }
+        }
+    }
+    insertToBucket(key, obj) {
+        if (this.buckets[key] === undefined) this.buckets[key] = [];
+        if (!this.buckets[key].includes(obj))
+            this.buckets[key].push(obj);
+    }
+    getPossibleCollisions(x1, x2, y1, y2) {
+        var possibleCollisions = [];
+        var cellMinX = Math.floor(x1/this.cellSize)*this.cellSize;
+        var cellMaxX = Math.floor(x2/this.cellSize)*this.cellSize;
+        var cellMinY = Math.floor(y1/this.cellSize)*this.cellSize;
+        var cellMaxY = Math.floor(y2/this.cellSize)*this.cellSize;
+        for (var i = cellMinX; i <= cellMaxX; i+= this.cellSize) {
+            for (var j = cellMinY; j <= cellMaxY; j+= this.cellSize) {
+                if (this.buckets[i+","+j] === undefined) continue;
+                for (var k = 0; k < this.buckets[i+","+j].length; ++k) {
+
+                    var item = this.buckets[i+","+j][k];
+                    if (!possibleCollisions.includes(item)) possibleCollisions.push(item);
+                }
+                /*
+                this.buckets[i+","+j].forEach(function(item) {
+                    if (!possibleCollisions.includes(item)) possibleCollisions.push(item);
+                });
+                */
+            }
+        }
+        return possibleCollisions;
+    }
+    display(ctx, width, height) {
+        for (var i = 0; i <= width; i += this.cellSize) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, height);
+            ctx.stroke();
+        }
+        for (var i = 0; i <= height; i += this.cellSize) {
+            ctx.beginPath();
+            ctx.moveTo(0, i);
+            ctx.lineTo(width, i);
+            ctx.stroke();
+        }
     }
 }
