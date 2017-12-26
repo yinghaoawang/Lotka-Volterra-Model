@@ -10,11 +10,12 @@
     </head>
     <body>
         <div class='container'>
-            <canvas id='canvas' width='800' height='800'></canvas>
+            <canvas id='canvas' width='1000' height='1000'></canvas>
         <div class='container-fluid'>
             <button class='btn btn-default' id='resetBtn'>Reset</button>
             <button class='btn btn-primary' id='resumeBtn'>Resume</button>
             <button class='btn btn-danger' id='pauseBtn'>Pause</button>
+            <button class='btn btn-info' id='shBtn'>Toggle Spatial Hash Grid</button>
         </div>
         <!-- Sim runner script & sim script -->
         <script src='js/lv-sim.js'></script>
@@ -44,6 +45,9 @@
                     console.log(intervalID);
                     running = false;
                 }
+            });
+            $('#shBtn').click(function() {
+                lvsim.showSpatialHash = !lvsim.showSpatialHash;
             });
         </script>
         <div class='container'>

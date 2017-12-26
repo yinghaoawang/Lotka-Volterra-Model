@@ -13,8 +13,8 @@ class LVSim {
         this.predatorSize = 5;
         this.preySize = 5;
         this.deltaT = 30;
-        this.x0 = 18;
-        this.y0 = 6 
+        this.x0 = this.width/3;
+        this.y0 = this.x0/3;
         this.useSpatialHash = true;
         this.showSpatialHash = false;
         this.sh = null;
@@ -50,7 +50,7 @@ class LVSim {
     }
     // creature interactions every frame
     update() {
-        if (this.useSpatialHash) this.sh = new SpatialHash(this.width/40);
+        if (this.useSpatialHash) this.sh = new SpatialHash(Math.max(this.preySize * 4, this.width/(this.preys.length/5)));
 
         // change direction at given times
         if (this.frameCount % this.dirChangeT == 0) {
@@ -61,13 +61,11 @@ class LVSim {
         // prey actions
         for (var i = 0; i < this.preys.length; ++i) {
             var prey = this.preys[i];
-            /*
             // recently birthed children cannot act
             if (prey.age < 1) {
                 ++prey.age;
                 continue;
             }
-            */
             prey.move()
             this.keepInBounds(prey);
             // prey reproduction
@@ -80,19 +78,19 @@ class LVSim {
         }
 
         if (this.useSpatialHash) {
-            for (var i = 0; i < this.preys.length; ++i) this.sh.insert(this.preys[i]);
+            for (var i = 0; i < this.preys.length; ++i) {
+                this.sh.insert(this.preys[i]);
+            }
         }
 
         // Predator actions
         for (var i = 0; i < this.predators.length; ++i) {
             var predator = this.predators[i];
-            /*
             // recently birthed children cannot act
             if (predator.age < 1) {
                 ++predator.age;
                 continue;
             }
-            */
             // predator decay
             if (this.frameCount % this.deltaT == 0 && Math.random() < this.c) {
                 this.predators.splice(i, 1);
@@ -137,6 +135,8 @@ class LVSim {
     draw() {
         // clears screen
         this.ctx.clearRect(0, 0, this.width, this.height);
+        // draws spatial hash chart if wanted
+        if (this.useSpatialHash && this.showSpatialHash && this.sh != null) this.sh.display(this.ctx, this.width, this.height);
         // draw predator/prey every frame
         for (var i = 0; i < this.preys.length; ++i) {
             this.preys[i].display(this.ctx);
@@ -144,7 +144,6 @@ class LVSim {
         for (var i = 0; i < this.predators.length; ++i) {
             this.predators[i].display(this.ctx);
         }
-        if (this.useSpatialHash && this.showSpatialHash && this.sh != null) this.sh.display(this.ctx, this.width, this.height);
     }
     // helpers
     newRandomPrey() {
@@ -258,15 +257,17 @@ class SpatialHash {
         var cellMaxY = Math.floor(maxY/this.cellSize)*this.cellSize;
         for (var i = cellMinX; i <= cellMaxX; i+= this.cellSize) {
             for (var j = cellMinY; j <= cellMaxY; j+= this.cellSize) {
-                if (eitherRectInRect(i, j, i+this.cellSize, j+this.cellSize, minX, maxX, minY, maxY))
+                if (eitherRectInRect(minX, maxX, minY, maxY, i, i+this.cellSize, j, j+this.cellSize)) {
                     this.insertToBucket(i+","+j, creature);
+                }
             }
         }
     }
     insertToBucket(key, obj) {
         if (this.buckets[key] === undefined) this.buckets[key] = [];
-        if (!this.buckets[key].includes(obj))
+        if (!this.buckets[key].includes(obj)) {
             this.buckets[key].push(obj);
+        }
     }
     getPossibleCollisions(x1, x2, y1, y2) {
         var possibleCollisions = [];
@@ -276,7 +277,9 @@ class SpatialHash {
         var cellMaxY = Math.floor(y2/this.cellSize)*this.cellSize;
         for (var i = cellMinX; i <= cellMaxX; i+= this.cellSize) {
             for (var j = cellMinY; j <= cellMaxY; j+= this.cellSize) {
-                if (this.buckets[i+","+j] === undefined) continue;
+                if (this.buckets[i+","+j] === undefined) {
+                    continue;
+                }
                 for (var k = 0; k < this.buckets[i+","+j].length; ++k) {
 
                     var item = this.buckets[i+","+j][k];
@@ -292,6 +295,7 @@ class SpatialHash {
         return possibleCollisions;
     }
     display(ctx, width, height) {
+        ctx.lineWidth = .5;
         for (var i = 0; i <= width; i += this.cellSize) {
             ctx.beginPath();
             ctx.moveTo(i, 0);
