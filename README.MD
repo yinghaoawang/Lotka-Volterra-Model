@@ -1,7 +1,7 @@
 # Lotka Volterra
 ## Web App
 ### index.html
-Models LK using chart.js. Using this for intro to game theory class.
+Models LK with the Euler method using chart.js.
 ![](https://i.imgur.com/eRuyUSx.png)
 
 Variables a-f are alpha-zeta in alphabetical order.
@@ -31,7 +31,7 @@ Entirely object oriented.
     - Has visual representation
 - Has slight changes in the details of the creatures actions (ordering, infancy, etc.)
 - Can retrieve logged data to paste onto chart reader
-![](https://i.imgur.com/1POveXP.png)
+![](https://i.imgur.com/GoqS7Cu.png)
 
 ## Visuals with Processing 3.0
 ### lv_sim.pde
