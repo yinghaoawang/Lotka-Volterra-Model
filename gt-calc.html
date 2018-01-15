@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel='stylesheet' type='text/css' href='css/bootstrap.min.css'>
+        <title>Game Theory</title>
+    </head>
+
+    <body>
+        <div class='container'>
+            <h1>Game Theory Calculator</h1>
+            <button id="addRowButton">Add Row</button>
+            <button id="addColButton">Add Col</button>
+            <button id="destroyRowButton">Destroy Row</button>
+            <input id="destroyRowText" type="number" style="width:35px" value="1"></input>
+            <button id="destroyColButton">Destroy Col</button>
+            <input id="destroyColText" type="number" style="width:35px" value="1"></input>
+            <button id="idsdsButton">Run IDSDS</button>
+            <button id="nashButton">Find Nash Equilibria</button>
+            <table id="gtTable" style="border:1px solid black; text-align:center">
+                <tr></tr>
+            </table>
+        </div>
+        <div class='container'>
+            <h3>IDSDS</h3>
+            <p>
+                Once we have eliminated dominated strategies for each player, it often
+                turns out that a pure strategy that was not dominated at the outset is now
+                dominated. Thus, we can undertake a second round of eliminating dominated
+                strategies. Indeed, this can be repeated until pure strategies are no
+                longer eliminated in this manner. In a finite game, this will occur after a
+                finite number of rounds and will always leave at least one pure strategy remaining
+                for each player. If strongly (resp. weakly) dominated strategies are
+                eliminated, we call this the iterated elimination of strongly dominated strategies.
+            </p>
+            <h3>Nash equilibrium</h3>
+            <p>
+                In game theory, the Nash equilibrium, named after American mathematician John Forbes Nash Jr., is a solution concept of a non-cooperative game involving two or more players in which each player is assumed to know the equilibrium strategies of the other players, and no player has anything to gain by changing only his own strategy. If each player has chosen a strategy and no player can benefit by changing strategies while the other players keep theirs unchanged, then the current set of strategy choices and the corresponding payoffs constitutes a Nash equilibrium.
+            </p>
+
+        </div>
+            <div class='container'>
+            <a href='index.html'>Lotka-Volterra Graph</a>
+            <br/>
+            <a href='reader.html'>Enter Your Own Data</a>
+            <br/>
+            <a href='lv-sim.html'>Lotka-Volterra Simulation</a>
+            <br/>
+            <a href='gt-calc.html'>Tiny Game Theory Calculator</a>
+        </div>
+    </body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="js/fcns.js"></script>
+</html>
