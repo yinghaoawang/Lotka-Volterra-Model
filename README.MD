@@ -1,4 +1,30 @@
-# Lotka Volterra
+# Lotka Volterra Model
+Tools used for analyzing the Lotka-Volterra model. Analysis of 2 popular collision detection algorithms included.
+
+The purpose of these tools were to
+find a solution to solving the problem of the fluctuations of animal populations ([full paper](../blob/master/paper/predator-prey-relations.pdf)).
+
+The graphical model simply models Lotka-Volterra equations using the Euler method. The advanced options were used to see the impact of the effects of wildlife
+management.
+
+The graphical simulation was used to see the accuracy of the Lotka-Volterra model in a controlled simulation. It thorough demonstrated the relative accuracy of the
+Lotka-Volterra model, refer to the paper for more information.
+
+## Getting started
+### Running the programs
+Simply download the files, navigate to the containing directory, and run any of the html files. To open the processing files, you must download Processing 3.0, and open the files in the processing/ directory.
+### Simulation variable reference
+Most of the variables in the simulation files can be changed
+- a-d: alpha through delta variables corresponding directly to the greek alphabet
+- predator/preySize: width and length of the respective creature square size
+- deltaT: the amount of frames each deltaT occurs
+- dirChangeT: the amount of frames each time all the creatures change directions
+- x0/y0: initial amount of prey and predator respectively
+- data/preyData/predatorData: array of prey and predator count respectively
+
+
+***
+# Summaries and developer comments for each module
 ## Web App
 ### index.html
 Models LK with the Euler method using chart.js.

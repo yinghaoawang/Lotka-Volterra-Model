@@ -35,7 +35,6 @@ boolean showSH = false;
 // Visual button draws simulation objects
 // DS button draws specified data structure visuals
 Button chartButton, visualButton, dsButton;
-int initCount = 500;
 float minFPS = 1000;
 
 void setup() {
