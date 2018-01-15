@@ -33,6 +33,11 @@ Entirely object oriented.
 - Can retrieve logged data to paste onto chart reader
 ![](https://i.imgur.com/GoqS7Cu.png)
 
+### gametheorycalcs.html
+Giving any MxN matrix, calculates general game theory values.
+* Run IDSDS (iterative deletion of strictly dominated strategies)
+* Determine nash equilibria
+
 ## Visuals with Processing 3.0
 ### lv_sim.pde
 Lotka-Volterra simulation made with Procession 3.0:
