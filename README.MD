@@ -2,7 +2,7 @@
 Tools used for analyzing the Lotka-Volterra model. Analysis of 2 popular collision detection algorithms included.
 
 The purpose of these tools were to
-find a solution to solving the problem of the fluctuations of animal populations ([full paper](../blob/master/paper/predator-prey-relations.pdf)).
+find a solution to solving the problem of the fluctuations of animal populations ([full paper](paper/predator-prey-relations.pdf)).
 
 The graphical model simply models Lotka-Volterra equations using the Euler method. The advanced options were used to see the impact of the effects of wildlife
 management.
