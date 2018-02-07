@@ -1,18 +1,15 @@
 # Lotka Volterra Model
-Tools used for analyzing the Lotka-Volterra model. Analysis of 2 popular collision detection algorithms included.
+This repository contains tools used for analyzing the Lotka-Volterra model. Furthermore, we analyze 2 popular collision detection algorithms used to make the simulations possible with large numbers.
 
-The purpose of these tools were to
-find a solution to solving the problem of the fluctuations of animal populations ([full paper](paper/predator-prey-relations.pdf)).
+The purpose of these tools are to solve the problem of fluctuating animal populations ([full paper](paper/predator-prey-relations.pdf)).
 
-The graphical model simply models Lotka-Volterra equations using the Euler method. The advanced options were used to see the impact of the effects of wildlife
-management.
+The graphical model simply models Lotka-Volterra equations using the Euler method. Advanced options are included to see the impact of active intervention via wildlife management.
 
-The graphical simulation was used to see the accuracy of the Lotka-Volterra model in a controlled simulation. It thorough demonstrated the relative accuracy of the
-Lotka-Volterra model, refer to the paper for more information.
+The graphical simulation is used to see the accuracy of the Lotka-Volterra model in a controlled environment. It demonstrates the accuracy of the Lotka-Volterra model (more information in the paper).
 
 ## Getting started
 ### Running the programs
-Simply download the files, navigate to the containing directory, and run any of the html files. To open the processing files, you must download Processing 3.0, and open the files in the processing/ directory.
+All the .html files can be opened with any browser. To open the processing files, you must download Processing 3.0, and open the files in the processing/ directory.
 ### Simulation variable reference
 Most of the variables in the simulation files can be changed
 - a-d: alpha through delta variables corresponding directly to the greek alphabet
